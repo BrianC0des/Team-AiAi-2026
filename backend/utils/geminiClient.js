@@ -1,10 +1,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  geminiClient.js
-//  Initialises and exports a singleton Google GenAI client.
+//  Initialises and exports a singleton Google GenAI client (Vertex AI mode).
 //
-//  Dual-mode initialisation:
-//    • GCP_PROJECT_ID set → Vertex AI (enterprise / production)
-//    • GCP_PROJECT_ID absent → Google AI Studio (API key, local dev)
+//  Prerequisites:
+//    • GCP_PROJECT_ID  — your Google Cloud project ID
+//    • GCP_LOCATION    — region, e.g. us-central1 (defaults to us-central1)
+//    • ADC credentials — run `gcloud auth application-default login` locally,
+//                        or attach a service account on Cloud Run / GKE.
 //
 //  Usage:
 //    const ai = require('./geminiClient');
@@ -13,23 +15,17 @@
 
 const { GoogleGenAI } = require('@google/genai');
 
-const isVertexAI = !!process.env.GCP_PROJECT_ID;
-
-if (!isVertexAI && !process.env.GEMINI_API_KEY) {
+if (!process.env.GCP_PROJECT_ID) {
   throw new Error(
-    'Missing AI credentials: set GEMINI_API_KEY (Google AI Studio) ' +
-    'or GCP_PROJECT_ID + GCP_LOCATION (Vertex AI).'
+    'Missing environment variable: GCP_PROJECT_ID is required for Vertex AI. ' +
+    'Set GCP_PROJECT_ID (and optionally GCP_LOCATION) in your .env file.'
   );
 }
 
-const ai = isVertexAI
-  ? new GoogleGenAI({
-      vertexai: true,
-      project: process.env.GCP_PROJECT_ID,
-      location: process.env.GCP_LOCATION || 'us-central1',
-    })
-  : new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY,
-    });
+const ai = new GoogleGenAI({
+  vertexai: true,
+  project: process.env.GCP_PROJECT_ID,
+  location: process.env.GCP_LOCATION || 'us-central1',
+});
 
 module.exports = ai;
