@@ -1,0 +1,27 @@
+{
+  "recommendations": [
+    // ─── Formatting & Linting ────────────────────────────────────────
+    "esbenp.prettier-vscode",       // Prettier (already configured in settings.json)
+    "dbaeumer.vscode-eslint",       // ESLint for JS
+
+    // ─── Git ─────────────────────────────────────────────────────────
+    "eamodio.gitlens",              // GitLens — inline blame, history, PR links
+    "github.vscode-pull-request-github", // GitHub PR & Issues panel
+
+    // ─── Node / Backend ──────────────────────────────────────────────
+    "christian-kohler.npm-intellisense",  // Auto-complete require() paths
+    "mikestead.dotenv",             // Syntax highlighting for .env files
+
+    // ─── Frontend ────────────────────────────────────────────────────
+    "formulahendry.auto-close-tag", // Auto-close HTML tags
+    "formulahendry.auto-rename-tag",// Rename matching HTML tag pairs
+    "ecmel.vscode-html-css",        // HTML class name completions from CSS
+
+    // ─── Firebase ────────────────────────────────────────────────────
+    "toba.vsfire",                  // Firebase config & rules syntax support
+
+    // ─── Utilities ───────────────────────────────────────────────────
+    "ms-vscode.vscode-json",        // Better JSON support
+    "usernamehw.errorlens"          // Inline error/warning display
+  ]
+}
