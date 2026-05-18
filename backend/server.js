@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const { errorMiddleware } = require('./utils/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,9 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// ── Global error handler (must be last in the pipeline) ──────────────────
+app.use(errorMiddleware);
 
 // Start server
 app.listen(PORT, () => {
