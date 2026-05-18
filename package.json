@@ -1,0 +1,9 @@
+{
+  "name": "team-aiai-bwai-2025",
+  "version": "1.0.0",
+  "description": "Full-stack AI web application — Team AiAi (BWAI 2025)",
+  "private": true,
+  "scripts": {
+    "verify-build": "cd backend && npm install && node server.js & sleep 3 && curl http://localhost:3000/health"
+  }
+}
