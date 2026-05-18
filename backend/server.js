@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { asyncHandler, errorMiddleware } = require('./utils/errorHandler');
-const groq = require('./utils/groqClient');
+const ai = require('./utils/geminiClient');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,12 +38,12 @@ app.post(
       throw err;
     }
 
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages: [{ role: 'user', content: prompt.trim() }],
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt.trim(),
     });
 
-    const reply = completion.choices[0]?.message?.content ?? '';
+    const reply = response.text ?? '';
     res.json({ success: true, reply });
   })
 );
