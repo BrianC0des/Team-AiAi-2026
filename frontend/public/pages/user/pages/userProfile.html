@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style/user-profile.css">
+    <title>User Profile | Clean Layout</title>
+</head>
+<body>
+    <header>
+        <a href="UserHome.html"><button>Back Home</button></a>
+        <h1>User Profile</h1>
+    </header>
+
+    <div class="profile-container">
+
+        <!-- ── Sidebar (Compact: Avatar + Name + Username + Edit) ── -->
+        <aside class="sidebar-card">
+            <div class="avatar-wrapper">
+                <div class="avatar-large" id="sidebarAvatar">??</div>
+                <div class="status-dot" title="Online"></div>
+            </div>
+            <h2 id="sidebarName">Your Name</h2>
+            <p class="username" id="sidebarUsername">@username</p>
+            <hr class="sidebar-divider">
+            <button class="edit-profile-btn" id="openEditModal">✎ Edit Profile</button>
+        </aside>
+
+        <!-- ── Main Content (Redesigned: About + Contact Info) ── -->
+        <main class="main-content">
+
+            <!-- About Section (full bio) -->
+            <section class="content-card" id="about-section">
+                <h3>About me</h3>
+                <p id="aboutText" class="empty-placeholder">Write something about yourself. This space is ready for your story, mission, or current focus.</p>
+            </section>
+
+            <!-- Contact & Details Section (moved from sidebar) -->
+            <section class="content-card" id="details-section">
+                <h3></h3>Contact & details</h3>
+                <div class="details-list">
+                    <div class="detail-item">
+                        <span id="detailEmail">hello@creativestudio.com</span>
+                    </div>
+                    <div class="detail-item">
+                        <span id="detailJoined">Joined March 2026</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>San Francisco, CA</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ─── Edit Profile Modal ────────────────────────────── -->
+    <div class="modal-overlay" id="editProfileModal">
+        <div class="modal">
+            <button class="close-modal" type="button" id="closeEditModal">×</button>
+            <h2>Edit Profile</h2>
+            <form id="editProfileForm">
+                <label for="editName"> Username</label>
+                <input id="editName" type="text" value="" placeholder="Your display name" required>
+
+                <label for="editUsername">Email</label>
+                <input id="editUsername" type="text" value="" placeholder="your_username" required>
+
+                <label for="editBio">Bio / About</label>
+                <textarea id="editBio" placeholder="Tell the world about yourself..."></textarea>
+
+                <button class="submit-btn" type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ─── Toast Notification ──────────────────────────── -->
+    <div class="toast" id="toast">✅ Profile updated successfully!</div>
+
+    <!-- ─── Footer ─────────────────────────────────────── -->
+    <footer>
+        <p>&copy; 2026 MyWebsite. All rights reserved.</p>
+    </footer>
+
+    <script src="../script/user-profile.js"></script>
+</body>
+</html>

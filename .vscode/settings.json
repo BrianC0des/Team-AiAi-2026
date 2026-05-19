@@ -36,5 +36,6 @@
   "files.eol": "\n",
 
   // ─── Explorer ──────────────────────────────────────────────────
-  "explorer.compactFolders": false
+  "explorer.compactFolders": false,
+  "liveServer.settings.port": 5501
 }
