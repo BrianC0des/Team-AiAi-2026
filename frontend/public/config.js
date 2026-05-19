@@ -1,23 +1,21 @@
-// ─────────────────────────────────────────────────────────────
-//  Firebase Configuration
-//  Replace each placeholder with your project's real values.
-//  Find them at: Firebase Console → Project Settings → Your Apps
-// ─────────────────────────────────────────────────────────────
+// Import the functions you need from the SDKs you need
+import { initializeApp } from 'firebase/app';
+import { getAnalytics } from 'firebase/analytics';
+// TODO: Add SDKs for Firebase products that you want to use //
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId:             "YOUR_APP_ID",
+  apiKey: 'AIzaSyD2bM1AF2xxkLMY9KJsB80Chw2wOFZPia8',
+  authDomain: 'hackathon-16574.firebaseapp.com',
+  projectId: 'hackathon-16574',
+  storageBucket: 'hackathon-16574.firebasestorage.app',
+  messagingSenderId: '397993716360',
+  appId: '1:397993716360:web:021989575ce4c9b6a88d3d',
+  measurementId: 'G-5JS3NKH64W',
 };
 
-// ─────────────────────────────────────────────────────────────
-//  Initialize Firebase
-//  Uncomment the imports below once you add the Firebase SDK
-//  via a <script type="module"> or npm package.
-// ─────────────────────────────────────────────────────────────
-
-// import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.0/firebase-app.js";
-// const app = initializeApp(firebaseConfig);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
