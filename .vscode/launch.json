@@ -2,15 +2,15 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "▶ Start Backend (node server.js)",
       "type": "node",
       "request": "launch",
-      "cwd": "${workspaceFolder}/backend",
+      "name": "Start Express Backend",
       "program": "${workspaceFolder}/backend/server.js",
+      "cwd": "${workspaceFolder}/backend",
       "envFile": "${workspaceFolder}/backend/.env",
+      "preLaunchTask": "Install All Dependencies",
       "console": "integratedTerminal",
-      "restart": true,
-      "runtimeArgs": ["--inspect"]
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }

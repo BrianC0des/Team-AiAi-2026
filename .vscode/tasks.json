@@ -2,15 +2,24 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "verify-build",
+      "label": "Install All Dependencies",
       "type": "shell",
-      "command": "npm run verify-build",
+      "command": "npm install",
       "options": {
-        "cwd": "${workspaceFolder}",
-        "shell": {
-          "executable": "C:\\Program Files\\Git\\bin\\bash.exe",
-          "args": ["-c"]
-        }
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      }
+    },
+    {
+      "label": "Run Hackathon Health Check",
+      "type": "shell",
+      "command": "npm install && node server.js & sleep 3 && curl http://localhost:3000/health",
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
       },
       "group": {
         "kind": "build",
@@ -18,9 +27,8 @@
       },
       "presentation": {
         "reveal": "always",
-        "panel": "dedicated"
-      },
-      "problemMatcher": []
+        "panel": "new"
+      }
     }
   ]
 }
