@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "dev": "node server.js",
-    "deploy": "railway up --detach"
+    "deploy": "railway up --detach",
+    "verify-build": "npm install && node server.js & sleep 3 && curl http://localhost:3000/health"
   },
   "keywords": [],
   "author": "",

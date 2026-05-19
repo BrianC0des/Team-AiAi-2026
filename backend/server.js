@@ -2,57 +2,26 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { asyncHandler, errorMiddleware } = require('./utils/errorHandler');
-const ai = require('./utils/geminiClient');
+const { errorMiddleware } = require('./utils/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// ── Middleware ────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
 
 // ── Serve frontend static files ───────────────────────────────────────────
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));
 
-// Routes
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    message: 'Backend is healthy!',
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// ── POST /api/chat ────────────────────────────────────────────────────────
-//  Body: { "prompt": "your message here" }
-//  Returns: { "success": true, "reply": "<model response>" }
-//  AI: Google AI Studio — gemini-2.0-flash
-app.post(
-  '/api/chat',
-  asyncHandler(async (req, res) => {
-    const { prompt } = req.body;
-
-    if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
-      const err = new Error('Request body must include a non-empty "prompt" string.');
-      err.statusCode = 400;
-      throw err;
-    }
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: prompt.trim(),
-    });
-
-    const reply = response.text ?? '';
-    res.json({ success: true, reply });
-  })
-);
+// ── Routes ────────────────────────────────────────────────────────────────
+app.use('/health', require('./routes/health'));
+app.use('/api/chat', require('./routes/chat'));
 
 // ── Global error handler (must be last in the pipeline) ──────────────────
 app.use(errorMiddleware);
 
-// Start server
+// ── Start server ──────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
