@@ -6,7 +6,7 @@ const ai = require('../utils/geminiClient');
 // POST /api/chat
 // Body:    { "prompt": "your message here" }
 // Returns: { "success": true, "reply": "<model response>" }
-// AI:      Google AI Studio — gemini-2.0-flash
+// AI:      Google AI Studio — gemini-2.5-flash
 router.post(
   '/',
   asyncHandler(async (req, res) => {
@@ -19,7 +19,7 @@ router.post(
     }
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       contents: prompt.trim(),
     });
 
