@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "node server.js",
+    "dev": "nodemon server.js",
     "deploy": "railway up --detach",
     "verify-build": "npm install && node server.js & sleep 3 && curl http://localhost:3000/health"
   },
@@ -20,5 +20,8 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "firebase-admin": "^13.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
