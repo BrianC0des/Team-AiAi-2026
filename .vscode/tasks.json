@@ -19,7 +19,11 @@
       "type": "shell",
       "command": "npm install && node server.js & sleep 3 && curl http://localhost:3000/health",
       "options": {
-        "cwd": "${workspaceFolder}/backend"
+        "cwd": "${workspaceFolder}/backend",
+        "shell": {
+          "executable": "C:\\Program Files\\Git\\bin\\bash.exe",
+          "args": ["-c"]
+        }
       },
       "group": {
         "kind": "build",
