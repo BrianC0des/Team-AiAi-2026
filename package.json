@@ -5,5 +5,12 @@
   "private": true,
   "scripts": {
     "verify-build": "cd backend && npm install && node server.js & sleep 3 && curl http://localhost:3000/health"
+  },
+  "dependencies": {
+    "@google/genai": "^2.4.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "firebase-admin": "^13.10.0"
   }
 }
