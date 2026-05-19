@@ -27,6 +27,7 @@ app.get('/health', (req, res) => {
 // ── POST /api/chat ────────────────────────────────────────────────────────
 //  Body: { "prompt": "your message here" }
 //  Returns: { "success": true, "reply": "<model response>" }
+//  AI: Google AI Studio — gemini-2.0-flash
 app.post(
   '/api/chat',
   asyncHandler(async (req, res) => {
@@ -39,7 +40,7 @@ app.post(
     }
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-2.0-flash',
       contents: prompt.trim(),
     });
 

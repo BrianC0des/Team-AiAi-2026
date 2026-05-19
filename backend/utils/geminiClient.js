@@ -1,12 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  geminiClient.js
-//  Initialises and exports a singleton Google GenAI client (Vertex AI mode).
+//  Initialises and exports a singleton Google GenAI client (AI Studio mode).
 //
 //  Prerequisites:
-//    • GCP_PROJECT_ID  — your Google Cloud project ID
-//    • GCP_LOCATION    — region, e.g. us-central1 (defaults to us-central1)
-//    • ADC credentials — run `gcloud auth application-default login` locally,
-//                        or attach a service account on Cloud Run / GKE.
+//    • GEMINI_API_KEY — your Google AI Studio API key
+//      Get one at: https://aistudio.google.com/app/apikey
 //
 //  Usage:
 //    const ai = require('./geminiClient');
@@ -15,17 +13,13 @@
 
 const { GoogleGenAI } = require('@google/genai');
 
-if (!process.env.GCP_PROJECT_ID) {
+if (!process.env.GEMINI_API_KEY) {
   throw new Error(
-    'Missing environment variable: GCP_PROJECT_ID is required for Vertex AI. ' +
-    'Set GCP_PROJECT_ID (and optionally GCP_LOCATION) in your .env file.'
+    'Missing environment variable: GEMINI_API_KEY is required for Google AI Studio. ' +
+    'Set GEMINI_API_KEY in your .env file. Get a key at https://aistudio.google.com/app/apikey'
   );
 }
 
-const ai = new GoogleGenAI({
-  vertexai: true,
-  project: process.env.GCP_PROJECT_ID,
-  location: process.env.GCP_LOCATION || 'us-central1',
-});
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 module.exports = ai;
