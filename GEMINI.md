@@ -4,9 +4,9 @@
 ## 1. Tech Stack Boundaries
 - **Backend:** Node.js 20, Express.js.
 - **Frontend:** Vanilla HTML/CSS/JS (No React, No Vue).
-- **AI Integration:** `@google/genai` (Google Cloud Vertex AI / Gemini 3 Flash).
+- **AI Integration:** `@google/genai` (Google AI Studio — API key auth / gemini-2.0-flash).
 - **Database:** `firebase-admin` (Backend only). Do NOT use the client-side Firebase SDK for database writes.
-
+  
 ## 2. Coding Standards
 - **Fetch:** Use native `fetch()`. NEVER use `axios` or `node-fetch`.
 - **Async:** Every single Express API route MUST be wrapped in our `asyncHandler`.
