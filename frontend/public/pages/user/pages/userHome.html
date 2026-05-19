@@ -1,133 +1,145 @@
 <!doctype html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://kit.fontawesome.com/fca4bb62ea.js" crossorigin="anonymous"></script>
     <title>User Home | Dashboard</title>
-    <link rel="stylesheet" href="../style/user-home.css">
+    <link rel="stylesheet" href="../style/user-home.css" />
     <!-- Additional dashboard styles (see separate CSS snippet) -->
-</head>
-<body>
+  </head>
+  <body>
     <header id="Header">
-        <i class="fa-solid fa-bars" id="Burger"></i>
-        <div id="HeaderInfo">
-            <h1>Welcome, User404</h1>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius minus necessitatibus non, iste sunt ipsam qui quo.</p>
-        </div>
+      <i class="fa-solid fa-bars" id="Burger"></i>
+      <div id="HeaderInfo">
+        <h1>Welcome, User404</h1>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius minus necessitatibus non,
+          iste sunt ipsam qui quo.
+        </p>
+      </div>
     </header>
 
     <!-- ========= MOCK DASHBOARD ========= -->
     <main class="dashboard">
-        <!-- Stats Row -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-                <div class="stat-info">
-                    <h3>1,284</h3>
-                    <p>Total Users</p>
-                </div>
+      <!-- Stats Row -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="stat-info">
+            <h3>1,284</h3>
+            <p>Total Users</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+          <div class="stat-info">
+            <h3>+23.5%</h3>
+            <p>Growth Rate</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-dollar-sign"></i></div>
+          <div class="stat-info">
+            <h3>$84.2k</h3>
+            <p>Revenue</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+          <div class="stat-info">
+            <h3>147h</h3>
+            <p>Hours Saved</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two‑column layout: main content + sidebar -->
+      <div class="dashboard-grid">
+        <!-- Left: Recent Activity & Projects -->
+        <div class="dashboard-main">
+          <section class="card">
+            <div class="card-header">
+              <h2><i class="fa-solid fa-list-check"></i> Recent Activity</h2>
+              <a href="#">View all →</a>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
-                <div class="stat-info">
-                    <h3>+23.5%</h3>
-                    <p>Growth Rate</p>
-                </div>
+            <ul class="activity-list">
+              <li><i class="fa-regular fa-circle-check"></i> Completed profile setup</li>
+              <li><i class="fa-regular fa-message"></i> Replied to customer support ticket</li>
+              <li><i class="fa-regular fa-chart-bar"></i> Exported monthly report</li>
+              <li><i class="fa-regular fa-user"></i> Added new team member</li>
+            </ul>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <h2><i class="fa-solid fa-rocket"></i> Quick Actions</h2>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fa-solid fa-dollar-sign"></i></div>
-                <div class="stat-info">
-                    <h3>$84.2k</h3>
-                    <p>Revenue</p>
-                </div>
+            <div class="action-buttons">
+              <button class="btn-primary">
+                <i class="fa-regular fa-pen-to-square"></i> New Post
+              </button>
+              <button class="btn-secondary">
+                <i class="fa-regular fa-folder-open"></i> Browse Files
+              </button>
+              <button class="btn-secondary">
+                <i class="fa-regular fa-calendar"></i> Schedule Meeting
+              </button>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
-                <div class="stat-info">
-                    <h3>147h</h3>
-                    <p>Hours Saved</p>
-                </div>
-            </div>
+          </section>
         </div>
 
-        <!-- Two‑column layout: main content + sidebar -->
-        <div class="dashboard-grid">
-            <!-- Left: Recent Activity & Projects -->
-            <div class="dashboard-main">
-                <section class="card">
-                    <div class="card-header">
-                        <h2><i class="fa-solid fa-list-check"></i> Recent Activity</h2>
-                        <a href="#">View all →</a>
-                    </div>
-                    <ul class="activity-list">
-                        <li><i class="fa-regular fa-circle-check"></i> Completed profile setup</li>
-                        <li><i class="fa-regular fa-message"></i> Replied to customer support ticket</li>
-                        <li><i class="fa-regular fa-chart-bar"></i> Exported monthly report</li>
-                        <li><i class="fa-regular fa-user"></i> Added new team member</li>
-                    </ul>
-                </section>
-
-                <section class="card">
-                    <div class="card-header">
-                        <h2><i class="fa-solid fa-rocket"></i> Quick Actions</h2>
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-primary"><i class="fa-regular fa-pen-to-square"></i> New Post</button>
-                        <button class="btn-secondary"><i class="fa-regular fa-folder-open"></i> Browse Files</button>
-                        <button class="btn-secondary"><i class="fa-regular fa-calendar"></i> Schedule Meeting</button>
-                    </div>
-                </section>
+        <!-- Right: Top Projects / Progress -->
+        <div class="dashboard-side">
+          <section class="card">
+            <div class="card-header">
+              <h2><i class="fa-solid fa-chart-simple"></i> Top Projects</h2>
             </div>
-
-            <!-- Right: Top Projects / Progress -->
-            <div class="dashboard-side">
-                <section class="card">
-                    <div class="card-header">
-                        <h2><i class="fa-solid fa-chart-simple"></i> Top Projects</h2>
-                    </div>
-                    <div class="project-item">
-                        <span>Redesign Landing Page</span>
-                        <div class="progress-bar"><div style="width: 78%"></div></div>
-                        <span class="percent">78%</span>
-                    </div>
-                    <div class="project-item">
-                        <span>Mobile App Beta</span>
-                        <div class="progress-bar"><div style="width: 45%"></div></div>
-                        <span class="percent">45%</span>
-                    </div>
-                    <div class="project-item">
-                        <span>SEO Optimization</span>
-                        <div class="progress-bar"><div style="width: 92%"></div></div>
-                        <span class="percent">92%</span>
-                    </div>
-                </section>
-
-                <section class="card">
-                    <div class="card-header">
-                        <h2><i class="fa-regular fa-bell"></i> Notifications</h2>
-                    </div>
-                    <div class="notification-item">
-                        <i class="fa-regular fa-envelope"></i>
-                        <div>You have 3 unread messages</div>
-                    </div>
-                    <div class="notification-item">
-                        <i class="fa-regular fa-clock"></i>
-                        <div>System update scheduled for Friday</div>
-                    </div>
-                </section>
+            <div class="project-item">
+              <span>Redesign Landing Page</span>
+              <div class="progress-bar"><div style="width: 78%"></div></div>
+              <span class="percent">78%</span>
             </div>
+            <div class="project-item">
+              <span>Mobile App Beta</span>
+              <div class="progress-bar"><div style="width: 45%"></div></div>
+              <span class="percent">45%</span>
+            </div>
+            <div class="project-item">
+              <span>SEO Optimization</span>
+              <div class="progress-bar"><div style="width: 92%"></div></div>
+              <span class="percent">92%</span>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <h2><i class="fa-regular fa-bell"></i> Notifications</h2>
+            </div>
+            <div class="notification-item">
+              <i class="fa-regular fa-envelope"></i>
+              <div>You have 3 unread messages</div>
+            </div>
+            <div class="notification-item">
+              <i class="fa-regular fa-clock"></i>
+              <div>System update scheduled for Friday</div>
+            </div>
+          </section>
         </div>
+      </div>
     </main>
 
     <!-- ─── Footer ─────────────────────────────────────── -->
     <footer>
-        <p>&copy; 2026 MyWebsite. All rights reserved.</p>
+      <p>&copy; 2026 MyWebsite. All rights reserved.</p>
     </footer>
 
-    <script src="../script/sidebar.js"></script>
-</body>
+    <script src="../scripts/sidebar.js"></script>
+  </body>
 </html>

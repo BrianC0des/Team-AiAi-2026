@@ -1,19 +1,24 @@
-﻿const loginModal = document.getElementById('loginModal');
+// ─────────────────────────────────────────────────────────────────────────────
+//  main.js  —  Frontend entry point (per GEMINI.md §3)
+//  All frontend logic for the root index page lives here.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const loginModal = document.getElementById('loginModal');
 const signupModal = document.getElementById('signupModal');
 const loginButtons = [document.getElementById('login'), document.getElementById('login2')];
 const signupButtons = [document.getElementById('register'), document.getElementById('register2')];
 const closeButtons = document.querySelectorAll('.close-modal');
 const switchButtons = document.querySelectorAll('.modal-switch-btn');
 
-function openModal(modal) {
+const openModal = (modal) => {
   if (!modal) return;
   modal.classList.add('active');
-}
+};
 
-function closeModal(modal) {
+const closeModal = (modal) => {
   if (!modal) return;
   modal.classList.remove('active');
-}
+};
 
 loginButtons.forEach(button => {
   if (button) button.addEventListener('click', () => openModal(loginModal));
@@ -43,9 +48,7 @@ switchButtons.forEach(button => {
 [loginModal, signupModal].forEach(modal => {
   if (!modal) return;
   modal.addEventListener('click', event => {
-    if (event.target === modal) {
-      closeModal(modal);
-    }
+    if (event.target === modal) closeModal(modal);
   });
 });
 

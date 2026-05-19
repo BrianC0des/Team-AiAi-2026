@@ -10,7 +10,5 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "dependencies": {
-    "firebase": "^12.13.0"
-  }
+  "dependencies": {}
 }
