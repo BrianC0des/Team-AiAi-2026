@@ -399,10 +399,60 @@
       </div>
     </div>
 
+    <!-- Impact Card Modal (Success State) -->
+    <div class="modal-overlay" id="impactModal">
+      <div class="modal impact-modal">
+        <button class="close-modal" id="closeImpact" aria-label="Close">&times;</button>
+        
+        <div class="impact-card-wrapper" id="impactCard">
+          <div class="impact-card-header">
+            <div class="impact-badge">
+              <i class="fas fa-leaf"></i>
+              <span id="impactBadgeText">ITEM REPAIRED</span>
+            </div>
+            <div class="impact-brand">Scannable</div>
+          </div>
+
+          <div class="impact-card-image">
+            <img id="impactItemImage" src="" alt="Impact Item" />
+            <div class="impact-overlay-stat">
+              <span class="stat-value" id="co2SavedValue">0.0</span>
+              <span class="stat-unit">kg CO2 Saved</span>
+            </div>
+          </div>
+
+          <div class="impact-card-content">
+            <h3 id="impactTitle">Mission Accomplished!</h3>
+            <p id="impactMessage">"I just saved this item from the landfill! Choosing to repair instead of replace makes a world of difference. 🌍"</p>
+            <div class="impact-footer-stats">
+              <div class="impact-stat-item">
+                <span class="stat-label">Category</span>
+                <span class="stat-info" id="impactCategory">Electronics</span>
+              </div>
+              <div class="impact-stat-item">
+                <span class="stat-label">Action</span>
+                <span class="stat-info" id="impactAction">Repair</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions impact-actions">
+          <button type="button" class="submit-btn" id="shareImpactBtn">
+            <i class="fas fa-share-alt"></i> Share Progress
+          </button>
+          <button type="button" class="btn-secondary" id="downloadImpactBtn">
+            <i class="fas fa-download"></i> Download Card
+          </button>
+        </div>
+      </div>
+    </div>
+
     <footer>
       <p>&copy; 2026 Scannable. All rights reserved.</p>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script type="module" src="../scripts/user-home.js"></script>
   </body>
 </html>

@@ -506,6 +506,141 @@ const capturePhoto = () => {
 
 // inferAction removed — replaced by Gemini AI analysis via /api/analyze
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  Impact Card Logic — Sustainability Score & Social Sharing
+// ─────────────────────────────────────────────────────────────────────────────
+const impactModal = document.getElementById('impactModal');
+const closeImpactBtn = document.getElementById('closeImpact');
+const shareImpactBtn = document.getElementById('shareImpactBtn');
+const downloadImpactBtn = document.getElementById('downloadImpactBtn');
+
+const co2Values = {
+  electronics: 15.0,
+  wearables: 3.5,
+  household: 8.2,
+  recreational: 6.4,
+  supplies: 2.1,
+  default: 3.0
+};
+
+const actionText = {
+  repair: "ITEM REPAIRED",
+  donate: "ITEM DONATED",
+  recycle: "ITEM RECYCLED",
+  reuse: "ITEM REUSED"
+};
+
+const actionMessages = {
+  repair: "I just saved this item from the landfill! Choosing to repair instead of replace makes a world of difference. 🌍",
+  donate: "Just gave this item a second life! Donating helps the community and the planet. 🤝",
+  recycle: "Responsibly recycled! Keeping hazardous materials out of our soil and water. ♻️",
+  reuse: "Giving this item a new purpose! Creative reuse is the ultimate sustainability hack. ✨"
+};
+
+/**
+ * showImpactCard
+ * Populates and opens the Impact Card modal.
+ * @param {Object} item - The item record.
+ * @param {string} action - The action taken ('repair', 'donate', etc.)
+ */
+const showImpactCard = (item, action) => {
+  if (!impactModal) return;
+
+  const badgeText = document.getElementById('impactBadgeText');
+  const itemImage = document.getElementById('impactItemImage');
+  const co2Value = document.getElementById('co2SavedValue');
+  const impactTitle = document.getElementById('impactTitle');
+  const impactMessage = document.getElementById('impactMessage');
+  const impactCategory = document.getElementById('impactCategory');
+  const impactAction = document.getElementById('impactAction');
+
+  if (badgeText) badgeText.textContent = actionText[action] || "IMPACT MADE";
+  if (itemImage) itemImage.src = item.imageData || '';
+  
+  const savedAmount = co2Values[item.category.toLowerCase()] || co2Values.default;
+  if (co2Value) co2Value.textContent = savedAmount.toFixed(1);
+  
+  if (impactTitle) impactTitle.textContent = "Mission Accomplished!";
+  if (impactMessage) impactMessage.textContent = actionMessages[action] || actionMessages.repair;
+  if (impactCategory) impactCategory.textContent = item.category;
+  if (impactAction) impactAction.textContent = actionLabels[action] || action;
+
+  impactModal.classList.add('active');
+};
+
+// Make it available globally for active-repair.js and donation-stash.js
+window.showImpactCard = showImpactCard;
+
+const closeImpactCard = () => {
+  if (impactModal) impactModal.classList.remove('active');
+};
+
+if (closeImpactBtn) closeImpactBtn.addEventListener('click', closeImpactCard);
+
+if (shareImpactBtn) {
+  shareImpactBtn.addEventListener('click', async () => {
+    const badge = document.getElementById('impactBadgeText')?.textContent || "Impact";
+    const co2 = document.getElementById('co2SavedValue')?.textContent || "0";
+    const msg = document.getElementById('impactMessage')?.textContent || "";
+    
+    const shareData = {
+      title: 'My Scannable Impact',
+      text: `${badge}: ${msg} I saved ${co2}kg of CO2 today! #Scannable #Sustainability`,
+      url: window.location.origin
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback: Copy to clipboard
+        await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
+        alert('Progress copied to clipboard! Share it on your favorite social network.');
+      }
+    } catch (err) {
+      console.warn('Share failed', err);
+    }
+  });
+}
+
+if (downloadImpactBtn) {
+  downloadImpactBtn.addEventListener('click', async () => {
+    const cardElement = document.getElementById('impactCard');
+    if (!cardElement) return;
+
+    // Show loading state on the button
+    const originalText = downloadImpactBtn.innerHTML;
+    downloadImpactBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    downloadImpactBtn.disabled = true;
+
+    try {
+      // Use html2canvas to capture the card
+      // We use scale: 2 for higher resolution (Retina quality)
+      const canvas = await html2canvas(cardElement, {
+        scale: 2,
+        useCORS: true, // Important for images from other domains (like Firebase)
+        backgroundColor: '#ffffff',
+        borderRadius: 22
+      });
+
+      // Convert to image and trigger download
+      const image = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      const itemName = document.getElementById('impactCategory')?.textContent || 'item';
+      link.download = `scannable-impact-${itemName.toLowerCase()}.png`;
+      link.href = image;
+      link.click();
+    } catch (err) {
+      console.error('Download failed', err);
+      alert('Sorry, we could not generate the image. Please try again or take a screenshot!');
+    } finally {
+      // Restore button state
+      downloadImpactBtn.innerHTML = originalText;
+      downloadImpactBtn.disabled = false;
+    }
+  });
+}
+
 const loadUploadedItems = () => uploadedItems;
 
 const buildCounts = (items) => {
@@ -1403,9 +1538,19 @@ if (suggestionActionButtons) {
       applyUserSelectedAction(action);
       updateUploadedItems();
       syncWithFirebase();
-      // Close Suggestion Modal, open Action Modal
+
+      // Close Suggestion Modal
       if (suggestionModal) suggestionModal.classList.remove('active');
-      if (currentSuggestionItem) openActionModal(currentSuggestionItem, action);
+
+      if (currentSuggestionItem) {
+        if (action === 'reuse' || action === 'recycle') {
+          // Instant actions show the Impact Card immediately
+          showImpactCard(currentSuggestionItem, action);
+        } else {
+          // Repair and Donate go to the Action Modal (guides/shops)
+          openActionModal(currentSuggestionItem, action);
+        }
+      }
     });
   });
 }
