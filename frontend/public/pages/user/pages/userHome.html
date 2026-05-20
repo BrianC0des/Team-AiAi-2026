@@ -153,6 +153,18 @@
       </div>
     </div>
 
+    <!-- Join Us Modal -->
+    <div class="modal-overlay" id="joinUsModal">
+      <div class="modal">
+        <button class="close-modal" id="closeJoinUs" aria-label="Close">&times;</button>
+        <h2>Go further with saving the world, join us now!</h2>
+        <div class="modal-actions">
+          <button type="button" class="submit-btn" id="triggerLoginFromJoin">Log In</button>
+          <button type="button" class="btn-secondary" id="triggerSigninFromJoin">Sign Up</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Login Modal -->
     <div class="modal-overlay" id="loginModal">
       <div class="modal">
@@ -173,6 +185,7 @@
             <button type="button" class="btn-secondary" id="cancelLogin">Cancel</button>
           </div>
         </form>
+        <p class="auth-switch">Don't have an account? <span id="switchToSignin" class="auth-link">Sign up now!</span></p>
       </div>
     </div>
 
@@ -201,6 +214,7 @@
         </form>
         <div class="auth-divider">or</div>
         <button type="button" class="submit-btn google-btn">Continue with Google</button>
+        <p class="auth-switch">Already have an account? <span id="switchToLogin" class="auth-link">Log in now!</span></p>
       </div>
     </div>
 
