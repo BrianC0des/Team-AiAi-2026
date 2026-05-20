@@ -439,9 +439,16 @@ const openActionModal = (item, action) => {
 const applyUserSelectedAction = (action) => {
   if (!currentSuggestionItem || !['reuse', 'recycle', 'repair', 'donate'].includes(action)) return;
   currentSuggestionItem.action = action;
-  setActiveFilter(action);
+
+  if (action === 'repair') {
+    // Repair items go into the Active Repair pipeline — hidden from dashboard until finished
+    currentSuggestionItem.repairStatus = 'ongoing';
+    // Do NOT add to dashboard counts yet — only after repairStatus === 'finished'
+  }
+
+  setActiveFilter(action === 'repair' ? 'all' : action);
   renderDashboard();
-  // Note: modal closing is handled by the button click handler in Event Listeners
+  // Note: modal closing + redirect handled by the button click handler in Event Listeners
 };
 
 const openDetailModal = (item) => {
@@ -646,11 +653,10 @@ const loadUploadedItems = () => uploadedItems;
 const buildCounts = (items) => {
   return items.reduce(
     (acc, item) => {
-      if (!item.action) {
-      return acc;
-    }
-    const action = item.action;
-    acc[action] = (acc[action] || 0) + 1;
+      if (!item.action) return acc;
+      // Repair only counts when the repair is fully FINISHED (verified by AI)
+      if (item.action === 'repair' && item.repairStatus !== 'finished') return acc;
+      acc[item.action] = (acc[item.action] || 0) + 1;
       return acc;
     },
     { recycle: 0, reuse: 0, repair: 0, donate: 0 }
@@ -725,10 +731,14 @@ const setActiveFilter = (filter) => {
 };
 
 const renderDashboard = () => {
-  const items = loadUploadedItems();
-  renderSummary(buildCounts(items));
-  updateTotals(items);
-  renderHistory(items, currentFilter);
+  const allItems = loadUploadedItems();
+  // Exclude items that are in-progress repairs from the dashboard view
+  const dashboardItems = allItems.filter(
+    (item) => !(item.action === 'repair' && item.repairStatus === 'ongoing')
+  );
+  renderSummary(buildCounts(allItems));
+  updateTotals(dashboardItems);
+  renderHistory(dashboardItems, currentFilter);
 };
 
 const updateUploadedItems = () => {
@@ -1584,6 +1594,7 @@ if (suggestionActionButtons) {
   suggestionActionButtons.forEach((button) => {
     button.addEventListener('click', () => {
       const action = button.dataset.action;
+      const itemSnapshot = currentSuggestionItem; // capture before modal closes
       applyUserSelectedAction(action);
       updateUploadedItems();
       syncWithFirebase();
@@ -1591,18 +1602,22 @@ if (suggestionActionButtons) {
       // Close Suggestion Modal
       if (suggestionModal) suggestionModal.classList.remove('active');
 
-      if (currentSuggestionItem) {
-        if (action === 'reuse' || action === 'recycle') {
-          // Instant actions show the Impact Card immediately
-          showImpactCard(currentSuggestionItem, action);
+      if (itemSnapshot) {
+        if (action === 'repair') {
+          // Send straight to Active Repair page — no action modal, no impact card yet
+          window.location.href = 'activeRepair.html';
+        } else if (action === 'reuse') {
+          // Instant action — show impact card immediately
+          showImpactCard(itemSnapshot, action);
         } else {
-          // Repair and Donate go to the Action Modal (guides/shops)
-          openActionModal(currentSuggestionItem, action);
+          // Donate / Recycle — open Action Modal 2 (map/center finder)
+          openActionModal(itemSnapshot, action);
         }
       }
     });
   });
 }
+
 
 // Close Action Modal
 const closeActionBtn = document.getElementById('closeAction');
