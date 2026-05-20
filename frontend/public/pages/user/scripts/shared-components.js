@@ -153,7 +153,7 @@ const bindGoogleAuth = () => {
   if (!googleBtns.length) return;
 
   // Dynamically import Firebase auth so this file stays lightweight
-  import('../../../config.js').then(({ auth, googleProvider, signInWithPopup }) => {
+  import('../../../config.js').then(({ auth, googleProvider, signInWithPopup, signInWithRedirect }) => {
     googleBtns.forEach(btn => {
       btn.addEventListener('click', async () => {
         const originalText = btn.textContent;
@@ -163,7 +163,19 @@ const bindGoogleAuth = () => {
         });
 
         try {
-          const result = await signInWithPopup(auth, googleProvider);
+          let result;
+          try {
+            result = await signInWithPopup(auth, googleProvider);
+          } catch (popupError) {
+            if (popupError.code === 'auth/popup-blocked') {
+              console.warn("Google login popup was blocked. Falling back to signInWithRedirect...");
+              // Trigger redirect login immediately
+              await signInWithRedirect(auth, googleProvider);
+              return; // Browser navigates away, don't execute subsequent code
+            } else {
+              throw popupError;
+            }
+          }
           const idToken = await result.user.getIdToken();
 
           // Sync Google user with backend
