@@ -80,7 +80,7 @@ const renderAvailableItems = () => {
         const card = document.createElement('div');
         card.className = 'item-card';
         card.innerHTML = `
-            <img src="${item.imageData || '../../../assets/Pictures/filters_quality(95)format(webp).webp'}" alt="${item.name}">
+            <img src="${item.imageData || 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80'}" alt="${item.name}">
             <p class="item-name">${item.name}</p>
             <button class="add-to-box-btn" onclick="addToBox('${item.createdAt}')">+ Add</button>
         `;
@@ -106,7 +106,7 @@ const renderDonationBox = () => {
         const div = document.createElement('div');
         div.className = 'box-item';
         div.innerHTML = `
-            <img src="${item.imageData || '../../../assets/Pictures/filters_quality(95)format(webp).webp'}" alt="${item.name}">
+            <img src="${item.imageData || 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80'}" alt="${item.name}">
             <div class="box-item-info">
                 <h4>${item.name}</h4>
                 <span>${item.category}</span>
@@ -132,7 +132,7 @@ const renderHistory = () => {
         const div = document.createElement('div');
         div.className = 'box-item';
         div.innerHTML = `
-            <img src="${item.imageData || '../../../assets/Pictures/filters_quality(95)format(webp).webp'}" alt="${item.name}">
+            <img src="${item.imageData || 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80'}" alt="${item.name}">
             <div class="box-item-info">
                 <h4>${item.name}</h4>
                 <p>Donated to ${item.donatedTo} on ${new Date(item.donatedAt).toLocaleDateString()}</p>

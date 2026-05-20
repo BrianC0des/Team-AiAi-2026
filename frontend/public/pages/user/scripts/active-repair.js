@@ -24,7 +24,7 @@ const syncData = () => {
             id: item.id || `rep-${item.createdAt || index}`,
             name: item.name,
             category: item.category,
-            image: item.imageData || "../../../assets/Pictures/Green-tech-what-it-is-about-and-why-you-should-keep-an-eye-on-its-development-in-2022.jpg",
+            image: item.imageData || "https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&w=800&q=80",
             status: item.repairStatus || 'recommendation',
             aiSuggestion: item.aiSuggestion || "Based on the item type and condition, we recommend a standard inspection.",
             tools: item.repairTools || ["Screwdriver", "Cleaning Kit"],

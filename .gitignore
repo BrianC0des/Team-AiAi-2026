@@ -10,3 +10,9 @@ node_modules/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local Debugging / Errors
+errors/
+
+# Local Pictures (web URLs are used instead for production)
+frontend/public/assets/Pictures/
