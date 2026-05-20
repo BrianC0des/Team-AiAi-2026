@@ -51,6 +51,10 @@ const userAccount = document.getElementById('UserAccount');
 const profileLink = document.getElementById('profileLink');
 const headerAvatar = document.getElementById('headerAvatar');
 
+const activeRepairButton = document.getElementById('ActiveRepair');
+const donationStashButton = document.getElementById('DonationStash');
+const dashboardButton = document.getElementById('DashboardBtn');
+
 let currentFilter = 'all';
 let cameraStream = null;
 let capturedImageDataUrl = null;
@@ -67,21 +71,35 @@ const actionLabels = {
 let loggedInUser = JSON.parse(localStorage.getItem('scannableUser') || 'null');
 
 const updateHeaderAvatar = (user) => {
-  if (!headerAvatar) return;
-  if (user && user.profilePicture) {
-    headerAvatar.innerHTML = `<img src="${user.profilePicture}" alt="Profile">`;
-  } else if (user && user.email) {
-    const identifier = user.email;
-    const parts = identifier.split('@')[0].split(/[._-]/);
-    let initials = '??';
-    if (parts.length === 1) {
-      initials = parts[0].substring(0, 2).toUpperCase();
-    } else {
-      initials = (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+  const loginBtn = document.getElementById('login');
+  const signInBtn = document.getElementById('Sign-in');
+  const profileLink = document.getElementById('profileLink');
+
+  if (user) {
+    if (loginBtn) loginBtn.classList.add('hidden');
+    if (signInBtn) signInBtn.classList.add('hidden');
+    if (profileLink) profileLink.classList.remove('hidden');
+
+    if (headerAvatar) {
+      if (user.profilePicture) {
+        headerAvatar.innerHTML = `<img src="${user.profilePicture}" alt="Profile">`;
+      } else if (user.email) {
+        const identifier = user.email;
+        const parts = identifier.split('@')[0].split(/[._-]/);
+        let initials = '??';
+        if (parts.length === 1) {
+          initials = parts[0].substring(0, 2).toUpperCase();
+        } else {
+          initials = (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+        }
+        headerAvatar.textContent = initials;
+        headerAvatar.innerHTML = initials; // Ensure text only if no image
+      }
     }
-    headerAvatar.textContent = initials;
   } else {
-    headerAvatar.textContent = '??';
+    if (loginBtn) loginBtn.classList.remove('hidden');
+    if (signInBtn) signInBtn.classList.remove('hidden');
+    if (profileLink) profileLink.classList.add('hidden');
   }
 };
 
@@ -436,6 +454,32 @@ if (uploadButton) {
   uploadButton.addEventListener('click', openUploadModal);
 }
 
+if (dashboardButton) {
+  dashboardButton.addEventListener('click', () => {
+    window.location.href = 'userHome.html';
+  });
+}
+
+if (activeRepairButton) {
+  activeRepairButton.addEventListener('click', () => {
+    if (loggedInUser) {
+      window.location.href = 'activeRepair.html';
+    } else {
+      openAuthModal(loginModal);
+    }
+  });
+}
+
+if (donationStashButton) {
+  donationStashButton.addEventListener('click', () => {
+    if (loggedInUser) {
+      window.location.href = 'donationStash.html';
+    } else {
+      openAuthModal(loginModal);
+    }
+  });
+}
+
 if (loginButton) {
   loginButton.addEventListener('click', () => openAuthModal(loginModal));
 }
@@ -691,4 +735,10 @@ document.addEventListener('keydown', (event) => {
 document.addEventListener('DOMContentLoaded', () => {
   renderAuthState();
   renderDashboard();
+
+  // Check for URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('openUpload') === 'true') {
+    openUploadModal();
+  }
 });

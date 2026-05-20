@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://kit.fontawesome.com/fca4bb62ea.js" crossorigin="anonymous"></script>
+    <title>Donation Stash | Scannable</title>
+    <link rel="stylesheet" href="../style/donationStash.css" />
+  </head>
+  <body>
+    <header id="Header">
+      <h1 onclick="window.location.href='userHome.html'" style="cursor: pointer;">Scannable</h1>
+      <div id="NavButtons">
+        <button id="DashboardBtn" onclick="window.location.href='userHome.html'">Dashboard</button>
+        <button id="ActiveRepair" onclick="window.location.href='activeRepair.html'">Active Repair</button>
+        <button id="DonationStash" class="active">Donation Stash</button>
+      </div>
+      <div id="UserAccount">
+        <button id="login">Log In</button>
+        <button id="Sign-in">Sign Up</button>
+        <a id="profileLink" class="profile-link hidden" href="userProfile.html">
+          <div class="header-avatar" id="headerAvatar">??</div>
+        </a>
+      </div>
+    </header>
+
+    <main class="stash-container">
+      <div class="stash-header">
+        <h1>Donation Stash</h1>
+        <p>Select items from your inventory to add to your donation box.</p>
+      </div>
+
+      <div class="repair-tabs">
+        <button class="tab-btn active" data-tab="available">Available Items</button>
+        <button class="tab-btn" data-tab="history">Donation History</button>
+      </div>
+
+      <!-- Tab: Available Items -->
+      <div id="available" class="tab-content active">
+        <div class="stash-main">
+          <section class="items-pane">
+            <div class="items-grid" id="availableItemsGrid">
+              <!-- Example items, would be generated dynamically -->
+              <div class="item-card">
+                <img src="https://placehold.co/150x100/0066cc/white?text=Shirt" alt="Item" />
+                <p class="item-name">Blue Cotton Shirt</p>
+                <button class="add-to-box-btn">+ Add</button>
+              </div>
+              <div class="item-card">
+                <img src="https://placehold.co/150x100/004499/white?text=Mug" alt="Item" />
+                <p class="item-name">Ceramic Mug</p>
+                <button class="add-to-box-btn">+ Add</button>
+              </div>
+              <div class="item-card">
+                <img src="https://placehold.co/150x100/0077dd/white?text=Book" alt="Item" />
+                <p class="item-name">Old Textbook</p>
+                <button class="add-to-box-btn">+ Add</button>
+              </div>
+              <div class="item-card">
+                <img src="https://placehold.co/150x100/66aadd/white?text=Toy" alt="Item" />
+                <p class="item-name">Stuffed Bear</p>
+                <button class="add-to-box-btn">+ Add</button>
+              </div>
+              <div class="item-card">
+                <img src="https://placehold.co/150x100/3388cc/white?text=Lamp" alt="Item" />
+                <p class="item-name">Desk Lamp</p>
+                <button class="add-to-box-btn">+ Add</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="box-pane">
+            <div class="box-card">
+              <div class="box-header">
+                <h2>Donation Box</h2>
+                <span id="boxCount">0 items</span>
+              </div>
+              <div class="box-content" id="boxContent">
+                <p class="empty-box-message">No items added yet.</p>
+              </div>
+              <div class="box-footer">
+                <button id="resetBoxBtn" class="btn-secondary">Reset</button>
+                <button id="donateAllBtn" class="submit-btn" disabled>Donate Now</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Tab: History -->
+      <section id="history" class="tab-content">
+        <div class="history-list" id="donationHistoryList">
+          <div class="history-empty">No donations yet.</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Organization Selection Modal -->
+    <div class="modal-overlay" id="orgModal">
+      <div class="modal">
+        <button class="close-modal" id="closeOrgModal">&times;</button>
+        <h2>Choose Organization</h2>
+        <div class="org-list">
+          <label class="org-option">
+            <input type="radio" name="org" value="Red Cross" />
+            <span>Red Cross</span>
+          </label>
+          <label class="org-option">
+            <input type="radio" name="org" value="Local Shelter" />
+            <span>Local Shelter</span>
+          </label>
+          <label class="org-option">
+            <input type="radio" name="org" value="Goodwill" />
+            <span>Goodwill</span>
+          </label>
+        </div>
+        <button id="confirmDonationBtn" class="submit-btn" disabled>Confirm Donation</button>
+      </div>
+    </div>
+
+    <!-- Upload Item Modal (same as Dashboard) -->
+    <div class="modal-overlay" id="uploadModal">
+      <div class="modal">
+        <button class="close-modal" id="closeUpload" aria-label="Close">&times;</button>
+        <h2>Upload Item</h2>
+        <form id="uploadForm">
+          <label for="uploadImage">Item Image</label>
+          <input id="uploadImage" name="uploadImage" type="file" accept="image/*" />
+          <button type="button" id="cameraButton" class="btn-secondary take-photo-btn">Open Camera</button>
+          <div id="cameraPanel" class="camera-panel hidden">
+            <video id="cameraPreview" autoplay playsinline></video>
+            <div class="camera-controls">
+              <button type="button" id="capturePhoto" class="submit-btn">Capture</button>
+              <button type="button" id="closeCamera" class="btn-secondary">Close Camera</button>
+            </div>
+          </div>
+          <div id="imagePreviewWrapper" class="image-preview-wrapper">
+            <img id="imagePreview" alt="Image preview" />
+          </div>
+          <label for="uploadCategory">Category</label>
+          <select id="uploadCategory" name="uploadCategory" required>
+            <option value="">Choose category</option>
+            <option value="wearables">Wearables</option>
+            <option value="electronics">Electronics</option>
+            <option value="household">Household (Furniture & Home)</option>
+            <option value="recreational">Recreational</option>
+            <option value="supplies">Supplies</option>
+          </select>
+          <label for="uploadName">Item Name</label>
+          <input id="uploadName" name="uploadName" type="text" placeholder="Enter item name" required />
+          <label for="uploadDescription">Description</label>
+          <textarea id="uploadDescription" name="uploadDescription" placeholder="Describe the item" rows="4"></textarea>
+          <div class="modal-actions">
+            <button type="submit" class="submit-btn">Submit</button>
+            <button type="button" class="btn-secondary" id="cancelUpload">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+      <div class="modal">
+        <button class="close-modal" id="closeLogin" aria-label="Close">&times;</button>
+        <h2>Log In</h2>
+        <form id="loginForm" class="auth-form">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" name="loginEmail" type="email" placeholder="Enter your email" required />
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" name="loginPassword" type="password" placeholder="Enter your password" required />
+          <div class="modal-actions">
+            <button type="submit" class="submit-btn">Log In</button>
+            <button type="button" class="btn-secondary" id="cancelLogin">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div class="modal-overlay" id="signinModal">
+      <div class="modal">
+        <button class="close-modal" id="closeSignin" aria-label="Close">&times;</button>
+        <h2>Sign Up</h2>
+        <form id="signinForm" class="auth-form">
+          <label for="signinEmail">Email</label>
+          <input id="signinEmail" name="signinEmail" type="email" placeholder="Enter your email" required />
+          <label for="signinPassword">Password</label>
+          <input id="signinPassword" name="signinPassword" type="password" placeholder="Create a password" required />
+          <label for="signinConfirmPassword">Confirm Password</label>
+          <input id="signinConfirmPassword" name="signinConfirmPassword" type="password" placeholder="Confirm your password" required />
+          <div class="modal-actions auth-actions">
+            <button type="submit" class="submit-btn">Create Account</button>
+            <button type="button" class="btn-secondary" id="cancelSignin">Cancel</button>
+          </div>
+        </form>
+        <div class="auth-divider">or</div>
+        <button type="button" class="submit-btn google-btn">Continue with Google</button>
+      </div>
+    </div>
+
+    <!-- Floating Upload Button -->
+    <button id="UploadItem" class="floating-upload-btn" title="Upload New Item">
+      <i class="fas fa-plus"></i>
+      <span>Upload Item</span>
+    </button>
+
+    <footer>
+      <p>&copy; 2026 Scannable. All rights reserved.</p>
+    </footer>
+
+    <script src="../scripts/donation-stash.js"></script>
+  </body>
+</html>
