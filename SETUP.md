@@ -153,3 +153,22 @@ To avoid the `vi` issue permanently, set VS Code as your Git editor:
 ```bash
 git config --global core.editor "code --wait"
 ```
+
+---
+
+## 11. Troubleshooting Common Auth Issues
+
+### A. Firebase Error `auth/unauthorized-domain`
+When testing Google Auth on a deployment (like Hugging Face Spaces or custom domain), you may get a popup block or unauthorized domain error:
+* **Cause**: Firebase Authentication blocks authentication requests from unauthorized domains for security.
+* **Resolution**:
+  1. Go to the **Firebase Console** -> **Build** -> **Authentication** -> **Settings** tab.
+  2. Scroll down to **Authorized domains**.
+  3. Click **Add domain** and enter your space's direct URL (e.g., `devchan123-scanable.hf.space` without `https://` or path info).
+  4. Click **Save**.
+
+### B. Popup Blocked / Browser Shield Block
+If the Google Auth popup is blocked:
+* **Cause**: Browsers or adblockers (such as Brave Shields) might block the Firebase sign-in window.
+* **Resolution**: Whitelist the site or allow popups/redirects in your browser settings.
+

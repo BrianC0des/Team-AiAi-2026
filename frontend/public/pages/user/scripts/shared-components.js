@@ -205,7 +205,20 @@ const bindGoogleAuth = () => {
         } catch (error) {
           if (error.code !== 'auth/popup-closed-by-user') {
             console.error("Google Login Error:", error);
-            alert(error.message || "Google sign-in failed. Please try again.");
+            
+            let errMsg = error.message || String(error);
+            const code = error.code || error.message || "";
+            
+            if (code.includes('unauthorized-domain')) {
+              errMsg = `This domain (${window.location.hostname}) is not authorized for authentication in the Firebase console. Please ask your team lead to add this domain to the 'Authorized domains' list in Firebase Authentication > Settings.`;
+            } else if (code.includes('popup-blocked')) {
+              errMsg = "The Google login popup was blocked by your browser. Please allow popups/redirects for this site in your browser settings (or disable adblocker/shields) and try again.";
+            } else {
+              if (errMsg.startsWith("Firebase: ")) {
+                errMsg = errMsg.replace("Firebase: ", "");
+              }
+            }
+            alert(errMsg);
           }
         } finally {
           googleBtns.forEach(b => {
