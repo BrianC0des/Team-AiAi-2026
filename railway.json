@@ -1,10 +1,9 @@
 {
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "npm install"
+    "buildCommand": "npm install --prefix backend"
   },
   "deploy": {
-    "startCommand": "node server.js",
-    "rootDirectory": "backend"
+    "startCommand": "node backend/server.js"
   }
 }
