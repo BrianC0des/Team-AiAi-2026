@@ -19,6 +19,8 @@ jobs:
       - name: Push to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: ${{ vars.HF_USERNAME || 'devchan123' }}
+          HF_SPACE_NAME: ${{ vars.HF_SPACE_NAME || 'ScanAble' }}
         run: |
           # 1. Clean all Git history inside the runner
           rm -rf .git
@@ -34,4 +36,5 @@ jobs:
           git commit -m "deploy: clean Hugging Face build"
           
           # 4. Force push the clean commit to Hugging Face Spaces
-          git push --force https://devchan123:$HF_TOKEN@huggingface.co/spaces/devchan123/ScanAble main
+          git push --force https://$HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HF_USERNAME/$HF_SPACE_NAME main
+
