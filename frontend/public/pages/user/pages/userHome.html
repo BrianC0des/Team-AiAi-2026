@@ -146,7 +146,10 @@
           <textarea id="uploadDescription" name="uploadDescription" placeholder="Describe the item" rows="4"></textarea>
 
           <div class="modal-actions">
-            <button type="submit" class="submit-btn">Submit</button>
+            <button type="submit" class="submit-btn" id="uploadSubmitBtn">
+              <span id="uploadSubmitLabel">Analyze Item</span>
+              <span id="uploadSubmitSpinner" class="hidden">Analyzing…</span>
+            </button>
             <button type="button" class="btn-secondary" id="cancelUpload">Cancel</button>
           </div>
         </form>
@@ -218,24 +221,43 @@
       </div>
     </div>
 
-    <!-- Suggestion Modal -->
+    <!-- Suggestion Modal (Modal 1 — AI result + action choice) -->
     <div class="modal-overlay" id="suggestionModal">
       <div class="modal">
         <button class="close-modal" id="closeSuggestion" aria-label="Close">&times;</button>
         <h2>AI Suggestion</h2>
-        <div class="suggestion-content">
-          <p class="suggestion-intro">Our AI has reviewed your item and suggests the best next step.</p>
-          <div class="suggestion-grid">
-            <div class="suggestion-meta">
-              <div class="suggestion-item"><span>Name</span><strong id="suggestionName"></strong></div>
-              <div class="suggestion-item"><span>Category</span><strong id="suggestionCategory"></strong></div>
-              <div class="suggestion-item"><span>Condition</span><strong id="suggestionSeverity">Good</strong></div>
-              <div class="suggestion-item"><span>Recommended Action</span><strong id="suggestionAction">Recycle</strong></div>
-            </div>
-            <div class="suggestion-message">
-              <p id="suggestionText">This is a placeholder suggestion. We will implement the AI later.</p>
-            </div>
+
+        <!-- Not-an-item state -->
+        <div id="suggestionNotAnItem" class="hidden">
+          <div class="suggestion-invalid-msg">
+            <span class="suggestion-invalid-icon"></span>
+            <p id="suggestionNotAnItemText"></p>
+            <p class="suggestion-invalid-hint">Please upload a photo of a physical item such as clothing, electronics, furniture, or household goods.</p>
           </div>
+        </div>
+
+        <!-- Unrecognizable state -->
+        <div id="suggestionUnrecognizable" class="hidden">
+          <div class="suggestion-invalid-msg">
+            <span class="suggestion-invalid-icon"></span>
+            <p>Item Unrecognizable — Please provide more description or upload a clearer image.</p>
+          </div>
+        </div>
+
+        <!-- Normal result state -->
+        <div class="suggestion-content" id="suggestionResult">
+          <div class="suggestion-meta-bar">
+            <div class="suggestion-item"><span>Name</span><strong id="suggestionName"></strong></div>
+            <div class="suggestion-item"><span>Category</span><strong id="suggestionCategory"></strong></div>
+            <div class="suggestion-item"><span>Condition</span><strong id="suggestionSeverity"></strong></div>
+            <div class="suggestion-item"><span>Recommended Action</span><strong id="suggestionAction"></strong></div>
+            <div class="suggestion-item"><span>Confidence</span><strong id="suggestionConfidence"></strong></div>
+          </div>
+
+          <div class="suggestion-message">
+            <p id="suggestionText"></p>
+          </div>
+
           <div class="suggestion-action-selection">
             <p class="suggestion-note">What do you want to do with this item?</p>
             <div class="suggestion-action-buttons">
@@ -245,13 +267,112 @@
               <button type="button" class="action-choice-btn" data-action="donate">Donate</button>
             </div>
           </div>
-          <p class="suggestion-note">This recommendation is currently hard-coded for UI preview.</p>
         </div>
+
         <div class="modal-actions">
-          <button type="button" class="submit-btn" id="closeSuggestionButton">OK</button>
+          <button type="button" class="btn-secondary" id="closeSuggestionButton">Skip</button>
         </div>
       </div>
     </div>
+
+    <!-- Action Modal (Modal 2 — shown after user picks an action) -->
+    <div class="modal-overlay" id="actionModal">
+      <div class="modal">
+        <button class="close-modal" id="closeAction" aria-label="Close">&times;</button>
+        <h2 id="actionModalTitle"></h2>
+
+        <!-- REPAIR content: DIY + Expert tabs -->
+        <div id="actionRepairContent" class="hidden">
+          <div class="repair-tabs">
+            <button class="repair-tab active" id="tabDiy" type="button">DIY Repair</button>
+            <button class="repair-tab" id="tabExpert" type="button">Take to Expert</button>
+          </div>
+
+          <div class="repair-panel" id="panelDiy">
+            <div id="diyContent">
+              <div class="repair-meta" id="diyMeta"></div>
+              <ol class="repair-steps" id="diySteps"></ol>
+              <div class="repair-links" id="diyLinks"></div>
+            </div>
+          </div>
+
+          <div class="repair-panel hidden" id="panelExpert">
+            <div id="expertIdle">
+              <p class="expert-prompt-text">Find repair shops near your location.</p>
+              <button type="button" class="submit-btn" id="findShopsBtn">Find Shops Near Me</button>
+            </div>
+            <div class="repair-loading hidden" id="expertLoading">
+              <div class="repair-spinner"></div>
+              <span>Finding nearby shops…</span>
+            </div>
+            <div id="expertContent" class="hidden">
+              <div class="shop-list" id="shopList"></div>
+            </div>
+            <div id="expertError" class="hidden">
+              <p class="expert-error-text">Could not get location or find shops. Try searching manually.</p>
+              <a class="shop-search-link" id="shopSearchLink" href="#" target="_blank" rel="noopener">Search on Google Maps</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- DONATE content: nearby donation centers -->
+        <div id="actionDonateContent" class="hidden">
+          <div class="repair-panel">
+            <div id="donateIdle">
+              <p class="expert-prompt-text">Find the nearest charity or donation drop-off near you.</p>
+              <button type="button" class="submit-btn" id="findDonateBtn">Find Donation Centers</button>
+            </div>
+            <div class="repair-loading hidden" id="donateLoading">
+              <div class="repair-spinner"></div>
+              <span>Finding nearby donation centers…</span>
+            </div>
+            <div id="donateContent" class="hidden">
+              <div class="shop-list" id="donateList"></div>
+            </div>
+            <div id="donateError" class="hidden">
+              <p class="expert-error-text">Could not find donation centers. Try searching manually.</p>
+              <a class="shop-search-link" id="donateSearchLink" href="#" target="_blank" rel="noopener">🔍 Search on Google Maps</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- RECYCLE content: nearby recycling centers -->
+        <div id="actionRecycleContent" class="hidden">
+          <div class="repair-panel">
+            <div id="recycleIdle">
+              <p class="expert-prompt-text">Find the nearest recycling or e-waste facility near you.</p>
+              <button type="button" class="submit-btn" id="findRecycleBtn">Find Recycling Centers</button>
+            </div>
+            <div class="repair-loading hidden" id="recycleLoading">
+              <div class="repair-spinner"></div>
+              <span>Finding nearby recycling centers…</span>
+            </div>
+            <div id="recycleContent" class="hidden">
+              <div class="shop-list" id="recycleList"></div>
+            </div>
+            <div id="recycleError" class="hidden">
+              <p class="expert-error-text">Could not find recycling centers. Try searching manually.</p>
+              <a class="shop-search-link" id="recycleSearchLink" href="#" target="_blank" rel="noopener">🔍 Search on Google Maps</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- REUSE content -->
+        <div id="actionReuseContent" class="hidden">
+          <div class="suggestion-invalid-msg" style="background:#f0fff6;border-color:rgba(0,150,80,0.2);">
+            <span class="suggestion-invalid-icon"></span>
+            <p style="color:#006633;">Great choice! Reusing this item extends its life and reduces waste.</p>
+            <p class="suggestion-invalid-hint">Keep it, repurpose it, or pass it on to someone who can use it.</p>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="submit-btn" id="closeActionButton">Done</button>
+        </div>
+      </div>
+    </div>
+
+
 
     <!-- Item Detail Modal -->
     <div class="modal-overlay" id="detailModal">
