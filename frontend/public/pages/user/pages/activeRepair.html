@@ -105,20 +105,21 @@
     <div class="modal-overlay" id="finishRepairModal">
         <div class="modal">
             <button class="close-modal" id="closeFinishRepair">&times;</button>
-            <h2>Finish Repair</h2>
+            <h2>🔍 Verify Repair</h2>
             <div class="modal-body">
-                <p>Congratulations on fixing your item! Please upload a photo of the working item for AI verification.</p>
+                <p>Great work! Upload a clear photo of the repaired item and our AI will confirm it's fixed.</p>
                 <form id="finishRepairForm">
-                    <label for="finishImage">Proof of Repair</label>
+                    <label for="finishImage">Proof of Repair Photo</label>
                     <input id="finishImage" type="file" accept="image/*" required>
                     <div id="finishPreviewWrapper" class="image-preview-wrapper hidden">
                         <img id="finishPreview" alt="Proof preview">
                     </div>
-                    <p class="verification-note">AI will analyze this image to confirm the repair was successful.</p>
+                    <p class="verification-note">📸 Make sure the item is clearly visible and looks functional.</p>
                 </form>
+                <p id="verifyStatus" class="hidden" style="margin-top:12px;font-weight:600;font-size:0.9rem;"></p>
             </div>
             <div class="modal-actions">
-                <button id="confirmFinishBtn" class="submit-btn">Confirm & Finish</button>
+                <button id="confirmFinishBtn" class="submit-btn">Confirm &amp; Verify with AI</button>
                 <button id="cancelFinishBtn" class="btn-secondary">Cancel</button>
             </div>
         </div>
