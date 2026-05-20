@@ -449,7 +449,24 @@ const updateUploadedItems = () => {
   }
 };
 
+const switchToSignin = document.getElementById('switchToSignin');
+const switchToLogin = document.getElementById('switchToLogin');
+
 // Event Listeners
+if (switchToSignin) {
+  switchToSignin.addEventListener('click', () => {
+    closeAuthModal(loginModal);
+    openAuthModal(signInModal);
+  });
+}
+
+if (switchToLogin) {
+  switchToLogin.addEventListener('click', () => {
+    closeAuthModal(signInModal);
+    openAuthModal(loginModal);
+  });
+}
+
 if (uploadButton) {
   uploadButton.addEventListener('click', openUploadModal);
 }
@@ -460,12 +477,19 @@ if (dashboardButton) {
   });
 }
 
+const joinUsModal = document.getElementById('joinUsModal');
+const closeJoinUs = document.getElementById('closeJoinUs');
+const triggerLoginFromJoin = document.getElementById('triggerLoginFromJoin');
+const triggerSigninFromJoin = document.getElementById('triggerSigninFromJoin');
+
+// ... (keep existing definitions)
+
 if (activeRepairButton) {
   activeRepairButton.addEventListener('click', () => {
     if (loggedInUser) {
       window.location.href = 'activeRepair.html';
     } else {
-      openAuthModal(loginModal);
+      openAuthModal(joinUsModal);
     }
   });
 }
@@ -475,10 +499,34 @@ if (donationStashButton) {
     if (loggedInUser) {
       window.location.href = 'donationStash.html';
     } else {
-      openAuthModal(loginModal);
+      openAuthModal(joinUsModal);
     }
   });
 }
+
+if (closeJoinUs) {
+  closeJoinUs.addEventListener('click', () => closeAuthModal(joinUsModal));
+}
+
+if (joinUsModal) {
+  bindModalOverlayClose(joinUsModal, () => closeAuthModal(joinUsModal));
+}
+
+if (triggerLoginFromJoin) {
+  triggerLoginFromJoin.addEventListener('click', () => {
+    closeAuthModal(joinUsModal);
+    openAuthModal(loginModal);
+  });
+}
+
+if (triggerSigninFromJoin) {
+  triggerSigninFromJoin.addEventListener('click', () => {
+    closeAuthModal(joinUsModal);
+    openAuthModal(signInModal);
+  });
+}
+
+// ... (keep existing event listener logic)
 
 if (loginButton) {
   loginButton.addEventListener('click', () => openAuthModal(loginModal));
