@@ -104,7 +104,8 @@ async function updateProfileUI(email, bio, avatarFile) {
         let profilePicture = undefined;
 
         if (avatarFile) {
-            profilePicture = await readFileAsDataURL(avatarFile);
+            // Resize and compress the image client-side to ensure it is lightweight and fits in Firestore (1MB limit)
+            profilePicture = await resizeAndCompressImage(avatarFile);
         }
 
         const response = await fetch('/api/auth/profile', {
@@ -121,6 +122,9 @@ async function updateProfileUI(email, bio, avatarFile) {
             updatedUser.bio = bio;
             if (profilePicture) updatedUser.profilePicture = profilePicture;
             renderProfile(updatedUser);
+        } else {
+            console.error('Server error updating profile:', data);
+            showToast(data.message || data.error || 'Update failed', true);
         }
     } catch (error) {
         console.error('Failed to update profile', error);
@@ -128,14 +132,47 @@ async function updateProfileUI(email, bio, avatarFile) {
     }
 }
 
-function readFileAsDataURL(file) {
+function resizeAndCompressImage(file, maxWidth = 150, maxHeight = 150) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // Calculate aspect ratio
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Export as standard optimized JPEG DataURL (quality 0.7 produces extremely small size: ~10-15KB)
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                resolve(compressedDataUrl);
+            };
+            img.onerror = () => reject(new Error('Failed to load image.'));
+            img.src = e.target.result;
+        };
         reader.onerror = reject;
         reader.readAsDataURL(file);
     });
 }
+
 
 // ======================== MODAL LOGIC ========================
 const editModal = document.getElementById('editProfileModal');
