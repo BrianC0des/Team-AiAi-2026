@@ -20,8 +20,8 @@ const syncData = () => {
       category: item.category,
       image: item.imageData || "https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&w=800&q=80",
       // Status pipeline: 'recommendation' → 'ongoing' → 'finished'
-      // Items sent here via Repair button are already 'ongoing'
-      status: item.repairStatus || 'ongoing',
+      // Items default to 'recommendation' unless explicitly started
+      status: item.repairStatus || 'recommendation',
       aiSuggestion: item.aiSuggestion || 'Based on the item type and condition, we recommend a standard inspection.',
       aiDiyTips: item.aiDiyTips || [],
       canRepair: item.canRepair !== undefined ? item.canRepair : true,

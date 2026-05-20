@@ -442,7 +442,7 @@ const applyUserSelectedAction = (action) => {
 
   if (action === 'repair') {
     // Repair items go into the Active Repair pipeline — hidden from dashboard until finished
-    currentSuggestionItem.repairStatus = 'ongoing';
+    currentSuggestionItem.repairStatus = 'recommendation';
     // Do NOT add to dashboard counts yet — only after repairStatus === 'finished'
   }
 
