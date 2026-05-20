@@ -5,11 +5,11 @@ FROM node:20-slim
 WORKDIR /app
 
 # Copy root package files and install dependencies
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json* ./
 RUN npm install
 
 # Copy backend package files and install backend dependencies
-COPY backend/package.json backend/package-lock.json ./backend/
+COPY backend/package.json backend/package-lock.json* ./backend/
 RUN npm install --prefix backend
 
 # Copy the rest of the application files
