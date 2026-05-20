@@ -1,4 +1,7 @@
-import { auth, onAuthStateChanged } from "../../../config.js";
+import { auth, onAuthStateChanged, db } from '../../../config.js';
+import { initSharedModals } from './shared-components.js';
+
+initSharedModals();
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  donation-stash.js — Manages donate stash, recycle stash, and smart prompts
