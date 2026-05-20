@@ -121,13 +121,6 @@ Scan freely as a guest. Create an account later and transfer your full analysis 
 | Carl Marcel D. Mapa | Frontend Development | [GitHub](https://github.com/Akizenoko) | [LinkedIn](#) |
 | Landis Angelo J. Tarro | Pitch & Presentation | [GitHub](https://github.com/S4tori33) | [LinkedIn](#) |
 | Norielle John D. Buhawe | Research & Documentation | [GitHub](https://github.com/Itzsssnori) | [LinkedIn](#) |
-
----
-
-## License
-
-This project is licensed under the MIT License. See `LICENSE` for details.
-
 ---
 
 <div align="center">
