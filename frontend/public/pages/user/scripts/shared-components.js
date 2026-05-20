@@ -193,8 +193,12 @@ const bindGoogleAuth = () => {
               console.error("Error syncing items on Google login:", syncErr);
             }
 
-            // Redirect to user home page
-            window.location.href = 'userHome.html';
+            // Redirect to user home page (or reload if already there)
+            if (window.location.pathname.includes('userHome.html')) {
+              location.reload();
+            } else {
+              window.location.href = 'userHome.html';
+            }
           } else {
             alert(data.error || "Google login sync failed.");
           }
