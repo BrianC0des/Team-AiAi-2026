@@ -156,6 +156,19 @@ const bindGoogleAuth = () => {
   import('../../../config.js').then(({ auth, googleProvider, signInWithPopup }) => {
     googleBtns.forEach(btn => {
       btn.addEventListener('click', async () => {
+        // Detect if the app is embedded inside an iframe (like Hugging Face Spaces)
+        if (window.self !== window.top) {
+          const isSignup = btn.id === 'googleBtnSignup';
+          const param = isSignup ? 'openSignup=true' : 'openLogin=true';
+          const directUrl = window.location.origin + window.location.pathname + '?' + param;
+          
+          // Open in a new tab synchronously to guarantee the browser allows the gesture
+          window.open(directUrl, '_blank');
+          
+          alert("To complete sign-in, we have opened the ScanAble app in a new tab. Once you log in there, this page will automatically sync and log you in!");
+          return;
+        }
+
         // 1. Immediately launch popup synchronously to avoid any popup blocking
         let popupPromise;
         try {
