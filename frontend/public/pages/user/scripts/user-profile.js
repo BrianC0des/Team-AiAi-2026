@@ -2,7 +2,6 @@ import { auth, onAuthStateChanged } from "../../../config.js";
 
 // ======================== PROFILE DATA & UI ========================
 const sidebarEmailDisplay = document.getElementById('sidebarEmailDisplay');
-const sidebarAvatar = document.getElementById('sidebarAvatar');
 const aboutText = document.getElementById('aboutText');
 const toast = document.getElementById('toast');
 const signOutBtn = document.getElementById('signOutBtn');
@@ -14,8 +13,13 @@ const statRepair = document.getElementById('statRepair');
 
 // Helper: update avatar initials or image
 function updateAvatar(user) {
+    const sidebarAvatar = document.getElementById('sidebarAvatar');
+    const headerAvatar = document.getElementById('headerAvatar');
+
     if (user && user.profilePicture) {
-        sidebarAvatar.innerHTML = `<img src="${user.profilePicture}" alt="Profile">`;
+        const imgHtml = `<img src="${user.profilePicture}" alt="Profile">`;
+        if (sidebarAvatar) sidebarAvatar.innerHTML = imgHtml;
+        if (headerAvatar) headerAvatar.innerHTML = imgHtml;
     } else {
         let identifier = (user && user.email) || 'User';
         let initials = '??';
@@ -23,7 +27,14 @@ function updateAvatar(user) {
             const parts = identifier.split('@')[0].split(/[._-]/);
             initials = parts.length === 1 ? parts[0].substring(0, 2).toUpperCase() : (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
         }
-        sidebarAvatar.textContent = initials;
+        if (sidebarAvatar) {
+            sidebarAvatar.textContent = initials;
+            sidebarAvatar.innerHTML = initials;
+        }
+        if (headerAvatar) {
+            headerAvatar.textContent = initials;
+            headerAvatar.innerHTML = initials;
+        }
     }
 }
 
@@ -132,22 +143,47 @@ const openEditBtn = document.getElementById('openEditModal');
 const closeEditBtn = document.getElementById('closeEditModal');
 const editForm = document.getElementById('editProfileForm');
 
-openEditBtn.addEventListener('click', () => {
+function openModal() {
     const user = JSON.parse(localStorage.getItem('scannableUser') || '{}');
     document.getElementById('editEmail').value = user.email || '';
     document.getElementById('editBio').value = user.bio || '';
     editModal.classList.add('active');
-});
+    document.body.style.overflow = 'hidden';
+}
 
-closeEditBtn.addEventListener('click', () => editModal.classList.remove('active'));
-
-editForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const bio = document.getElementById('editBio').value.trim();
-    const avatarFile = document.getElementById('editAvatar').files[0];
-    updateProfileUI(null, bio, avatarFile);
+function closeModal() {
     editModal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+if (openEditBtn) openEditBtn.addEventListener('click', openModal);
+if (closeEditBtn) closeEditBtn.addEventListener('click', closeModal);
+
+// Close modal when clicking outside
+if (editModal) {
+    editModal.addEventListener('click', function(e) {
+        if (e.target === editModal) closeModal();
+    });
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && editModal && editModal.classList.contains('active')) closeModal();
 });
+
+// Handle form submission
+if (editForm) {
+    editForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('editEmail').value.trim();
+        const bio = document.getElementById('editBio').value.trim();
+        const avatarFile = document.getElementById('editAvatar').files[0];
+        
+        updateProfileUI(email, bio, avatarFile);
+        closeModal();
+    });
+}
 
 if (signOutBtn) {
     signOutBtn.addEventListener('click', async () => {
@@ -156,3 +192,20 @@ if (signOutBtn) {
         window.location.href = '../../../index.html';
     });
 }
+// Navigation Listeners
+const dashboardBtn = document.getElementById('DashboardBtn');
+if (dashboardBtn) {
+    dashboardBtn.addEventListener('click', () => window.location.href = 'userHome.html');
+}
+
+const activeRepairBtn = document.getElementById('ActiveRepair');
+if (activeRepairBtn) {
+    activeRepairBtn.addEventListener('click', () => window.location.href = 'activeRepair.html');
+}
+
+const donationStashBtn = document.getElementById('DonationStash');
+if (donationStashBtn) {
+    donationStashBtn.addEventListener('click', () => window.location.href = 'donationStash.html');
+}
+
+console.log('✅ Profile updated: email-only display and logout implemented.');

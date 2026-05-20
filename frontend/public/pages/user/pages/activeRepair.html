@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/fca4bb62ea.js" crossorigin="anonymous"></script>
+    <title>Active Repairs | Scannable</title>
+    <link rel="stylesheet" href="../style/active-repair.css">
+</head>
+<body>
+    <header id="Header">
+        <h1 onclick="window.location.href='userHome.html'" style="cursor: pointer;">Scannable</h1>
+
+        <div id="NavButtons">
+          <button id="DashboardBtn"> Dashboard </button>
+          <button id="ActiveRepair" class="active"> Active Repair </button>
+          <button id="DonationStash"> Donation Stash </button>
+        </div>
+
+        <div id="UserAccount">
+          <button id="login">Log In</button>
+          <button id="Sign-in">Sign Up</button>
+          <a id="profileLink" class="profile-link hidden" href="userProfile.html">
+            <div class="header-avatar" id="headerAvatar">??</div>
+          </a>
+        </div>
+    </header>
+
+    <main class="repair-container">
+        <div class="repair-header">
+            <h1>My Repairs</h1>
+            <p>Manage your ongoing and recommended repairs here.</p>
+        </div>
+
+        <div class="repair-tabs">
+            <button class="tab-btn active" data-tab="recommendations">Repair Recommendations</button>
+            <button class="tab-btn" data-tab="ongoing">Ongoing Repairs</button>
+            <button class="tab-btn" data-tab="finished">Finished Repairs</button>
+        </div>
+
+        <section id="recommendations" class="tab-content active">
+            <div class="repair-grid" id="recommendationsGrid">
+                <!-- Recommendations will be injected here -->
+            </div>
+        </section>
+
+        <section id="ongoing" class="tab-content">
+            <div class="repair-grid" id="ongoingGrid">
+                <!-- Ongoing repairs will be injected here -->
+            </div>
+        </section>
+
+        <section id="finished" class="tab-content">
+            <div class="repair-grid" id="finishedGrid">
+                <!-- Finished repairs will be injected here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Upload Button -->
+    <button id="UploadItem" class="floating-upload-btn" title="Upload New Item">
+      <i class="fas fa-plus"></i>
+      <span>Upload Item</span>
+    </button>
+
+    <!-- Modal for Starting Repair / Viewing Details -->
+    <div class="modal-overlay" id="repairDetailModal">
+        <div class="modal">
+            <button class="close-modal" id="closeRepairDetail">&times;</button>
+            <h2 id="modalItemName">Repair Details</h2>
+            <div class="modal-body">
+                <div class="repair-info-section">
+                    <h3>AI Recommendation</h3>
+                    <p id="modalAiSuggestion">Analyzing item...</p>
+                </div>
+                <div class="repair-info-section">
+                    <h3>Tools Needed</h3>
+                    <ul id="modalToolsList">
+                        <!-- Tools list -->
+                    </ul>
+                </div>
+                <div class="repair-info-section">
+                    <h3>Steps to Fix</h3>
+                    <ol id="modalStepsList">
+                        <!-- Steps list -->
+                    </ol>
+                </div>
+                <div id="repairStationSection" class="repair-info-section hidden">
+                    <h3>Nearby Repair Station</h3>
+                    <p id="modalStationInfo">This repair might be too complex. We recommend visiting a professional.</p>
+                    <button class="submit-btn">View Map</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="startRepairBtn" class="submit-btn">Start Repair Now</button>
+                <button id="cancelRepairBtn" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Finishing Repair -->
+    <div class="modal-overlay" id="finishRepairModal">
+        <div class="modal">
+            <button class="close-modal" id="closeFinishRepair">&times;</button>
+            <h2>Finish Repair</h2>
+            <div class="modal-body">
+                <p>Congratulations on fixing your item! Please upload a photo of the working item for AI verification.</p>
+                <form id="finishRepairForm">
+                    <label for="finishImage">Proof of Repair</label>
+                    <input id="finishImage" type="file" accept="image/*" required>
+                    <div id="finishPreviewWrapper" class="image-preview-wrapper hidden">
+                        <img id="finishPreview" alt="Proof preview">
+                    </div>
+                    <p class="verification-note">AI will analyze this image to confirm the repair was successful.</p>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button id="confirmFinishBtn" class="submit-btn">Confirm & Finish</button>
+                <button id="cancelFinishBtn" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+      <p>&copy; 2026 Scannable. All rights reserved.</p>
+    </footer>
+
+    <script src="../scripts/active-repair.js"></script>
+</body>
+</html>

@@ -12,16 +12,15 @@
     <script src="https://kit.fontawesome.com/fca4bb62ea.js" crossorigin="anonymous"></script>
     <title>User Home | Dashboard</title>
     <link rel="stylesheet" href="../style/user-home.css" />
-    <!-- Additional dashboard styles (see separate CSS snippet) -->
   </head>
   <body>
     <header id="Header">
-        <h1>Scannable</h1>
+        <h1 onclick="window.location.href='userHome.html'" style="cursor: pointer;">Scannable</h1>
 
         <div id="NavButtons">
-          <button id="UploadItem"> Upload Item </button>
-          <button id="Option2"> Active Repair </button>
-          <button id="Option3"> Donation Stash </button>
+          <button id="DashboardBtn" class="active"> Dashboard </button>
+          <button id="ActiveRepair"> Active Repair </button>
+          <button id="DonationStash"> Donation Stash </button>
         </div>
 
         <div id="UserAccount">
@@ -33,8 +32,6 @@
         </div>
     </header>
 
-
-    <!-- ========= MOCK DASHBOARD ========= -->
     <main class="dashboard">
       <section class="summary-grid" id="actionSummary">
         <div class="summary-card" data-action="recycle">
@@ -103,6 +100,12 @@
         </div>
       </section>
     </main>
+
+    <!-- Floating Upload Button -->
+    <button id="UploadItem" class="floating-upload-btn" title="Upload New Item">
+      <i class="fas fa-plus"></i>
+      <span>Upload Item</span>
+    </button>
 
     <!-- Add Upload Item Modal -->
     <div class="modal-overlay" id="uploadModal">
@@ -261,9 +264,8 @@
       </div>
     </div>
 
-    <!-- ─── Footer ─────────────────────────────────────── -->
     <footer>
-      <p>&copy; 2026 MyWebsite. All rights reserved.</p>
+      <p>&copy; 2026 Scannable. All rights reserved.</p>
     </footer>
 
     <script type="module" src="../scripts/user-home.js"></script>

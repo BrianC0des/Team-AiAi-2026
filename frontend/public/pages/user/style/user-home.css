@@ -133,6 +133,41 @@ body{
 }
 
 
+#NavButtons button.active {
+  background: var(--primary-blue) !important;
+  color: white !important;
+}
+
+.floating-upload-btn {
+  position: fixed;
+  bottom: 40px;
+  left: 40px;
+  z-index: 1000;
+  background: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 10px 30px rgba(0, 102, 204, 0.3);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.floating-upload-btn:hover {
+  transform: scale(1.05) translateY(-5px);
+  background: var(--primary-blue-dark);
+  box-shadow: 0 15px 40px rgba(0, 102, 204, 0.4);
+}
+
+.floating-upload-btn i {
+  font-size: 1.4rem;
+}
+
 footer {
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   color: #666666;

@@ -6,13 +6,27 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/fca4bb62ea.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="../style/user-profile.css">
-    <title>User Profile | Clean Layout</title>
+    <title>User Profile | Scannable</title>
 </head>
 <body>
-    <header>
-        <a href="userHome.html"><button>Back Home</button></a>
-        <h1>User Profile</h1>
+    <header id="Header">
+        <h1 onclick="window.location.href='userHome.html'" style="cursor: pointer;">Scannable</h1>
+
+        <div id="NavButtons">
+          <button id="DashboardBtn"> Dashboard </button>
+          <button id="ActiveRepair"> Active Repair </button>
+          <button id="DonationStash"> Donation Stash </button>
+        </div>
+
+        <div id="UserAccount">
+          <button id="login" class="hidden">Log In</button>
+          <button id="Sign-in" class="hidden">Sign Up</button>
+          <a id="profileLink" class="profile-link" href="userProfile.html">
+            <div class="header-avatar" id="headerAvatar">??</div>
+          </a>
+        </div>
     </header>
 
     <div class="profile-container">
@@ -40,13 +54,10 @@
 
             <!-- Contact & Details Section (moved from sidebar) -->
             <section class="content-card" id="details-section">
-                <h3>Contact & details</h3>
+                <h3>Details</h3>
                 <div class="details-list">
                     <div class="detail-item">
                         <span id="detailJoined">Joined March 2026</span>
-                    </div>
-                    <div class="detail-item">
-                        <span>San Francisco, CA</span>
                     </div>
                 </div>
             </section>
@@ -98,9 +109,15 @@
     <!-- ─── Toast Notification ──────────────────────────── -->
     <div class="toast" id="toast">✅ Profile updated successfully!</div>
 
+    <!-- Floating Upload Button -->
+    <button id="UploadItem" class="floating-upload-btn" title="Upload New Item" onclick="window.location.href='userHome.html?openUpload=true'">
+      <i class="fas fa-plus"></i>
+      <span>Upload Item</span>
+    </button>
+
     <!-- ─── Footer ─────────────────────────────────────── -->
     <footer>
-        <p>&copy; 2026 MyWebsite. All rights reserved.</p>
+        <p>&copy; 2026 Scannable. All rights reserved.</p>
     </footer>
 
     <script type="module" src="../scripts/user-profile.js"></script>
