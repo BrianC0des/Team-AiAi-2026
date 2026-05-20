@@ -12,12 +12,12 @@ class PatchedGoogleGenAI extends OriginalGoogleGenAI {
   constructor(options) {
     super(options);
 
-    // Gather all available keys from the environment settings
-    const keys = [
-      process.env.GEMINI_API_KEY,
-      process.env.GEMINI_API_KEY_2,
-      process.env.GEMINI_API_KEY_3,
-    ].filter(Boolean);
+    // Dynamically gather ALL available keys from the environment settings
+    // This will pick up GEMINI_API_KEY, GEMINI_API_KEY_2, GEMINI_API_KEY_99, etc.
+    const keys = Object.keys(process.env)
+      .filter(key => key.startsWith('GEMINI_API_KEY'))
+      .map(key => process.env[key])
+      .filter(Boolean);
 
     // If there are no fallback keys, don't apply the rotation patch
     if (keys.length <= 1) {
