@@ -53,6 +53,8 @@ body {
 
 #Header h1 {
     color: var(--primary-violet);
+    font-size: 1.8rem;
+    font-weight: 800;
 }
 
 #NavButtons {
@@ -367,13 +369,13 @@ footer {
 
 .google-btn {
     width: 100%;
-    background: #4285f4;
+    background: #8f65ff;
     border-color: transparent;
     color: #ffffff;
 }
 
 .google-btn:hover {
-    background: #3367d6;
+    background: #6e4ae7;
 }
 
 .auth-actions {
