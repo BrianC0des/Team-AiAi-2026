@@ -16,130 +16,250 @@
   </head>
   <body>
     <header id="Header">
-      <i class="fa-solid fa-bars" id="Burger"></i>
-      <div id="HeaderInfo">
-        <h1>Welcome, User404</h1>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius minus necessitatibus non,
-          iste sunt ipsam qui quo.
-        </p>
-      </div>
+        <h1>Scannable</h1>
+
+        <div id="NavButtons">
+          <button id="UploadItem"> Upload Item </button>
+          <button id="Option2"> Active Repair </button>
+          <button id="Option3"> Donation Stash </button>
+        </div>
+
+        <div id="UserAccount">
+          <button id="login">Log In</button>
+          <button id="Sign-in">Sign Up</button>
+          <a id="profileLink" class="profile-link hidden" href="userProfile.html">
+            <div class="header-avatar" id="headerAvatar">??</div>
+          </a>
+        </div>
     </header>
+
 
     <!-- ========= MOCK DASHBOARD ========= -->
     <main class="dashboard">
-      <!-- Stats Row -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-          <div class="stat-info">
-            <h3>1,284</h3>
-            <p>Total Users</p>
+      <section class="summary-grid" id="actionSummary">
+        <div class="summary-card" data-action="recycle">
+          <h3>Recyclable</h3>
+          <p class="summary-number" id="countRecycle">0</p>
+        </div>
+        <div class="summary-card" data-action="reuse">
+          <h3>Reuse</h3>
+          <p class="summary-number" id="countReuse">0</p>
+        </div>
+        <div class="summary-card" data-action="repair">
+          <h3>Repair</h3>
+          <p class="summary-number" id="countRepair">0</p>
+        </div>
+        <div class="summary-card" data-action="donate">
+          <h3>Donate</h3>
+          <p class="summary-number" id="countDonate">0</p>
+        </div>
+      </section>
+
+
+      <section class="history-card">
+        <div class="card-header">
+          <h2>Upload History</h2>
+          <div class="history-meta">
+            <span id="itemTotal">0 items</span>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
-          <div class="stat-info">
-            <h3>+23.5%</h3>
-            <p>Growth Rate</p>
+
+        <div class="filter-buttons" id="filterButtons">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="recycle">Recyclable</button>
+          <button class="filter-btn" data-filter="reuse">Reuse</button>
+          <button class="filter-btn" data-filter="repair">Repair</button>
+          <button class="filter-btn" data-filter="donate">Donate</button>
+        </div>
+
+        <div class="history-table-wrapper">
+          <table class="history-table" id="historyTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Action</th>
+                <th>Description</th>
+                <th>Saved On</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <tr><td colspan="6" class="empty-row">No saved items yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="achievements-card">
+        <div class="card-header">
+          <h2>Achievements Earned</h2>
+        </div>
+        <div class="achievement-list" id="achievementList">
+          <div class="achievement-empty">
+            <p>No achievements have been earned yet.</p>
+            <p class="achievement-note">Achievements will appear here once you unlock them.</p>
           </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fa-solid fa-dollar-sign"></i></div>
-          <div class="stat-info">
-            <h3>$84.2k</h3>
-            <p>Revenue</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
-          <div class="stat-info">
-            <h3>147h</h3>
-            <p>Hours Saved</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Two‑column layout: main content + sidebar -->
-      <div class="dashboard-grid">
-        <!-- Left: Recent Activity & Projects -->
-        <div class="dashboard-main">
-          <section class="card">
-            <div class="card-header">
-              <h2><i class="fa-solid fa-list-check"></i> Recent Activity</h2>
-              <a href="#">View all →</a>
-            </div>
-            <ul class="activity-list">
-              <li><i class="fa-regular fa-circle-check"></i> Completed profile setup</li>
-              <li><i class="fa-regular fa-message"></i> Replied to customer support ticket</li>
-              <li><i class="fa-regular fa-chart-bar"></i> Exported monthly report</li>
-              <li><i class="fa-regular fa-user"></i> Added new team member</li>
-            </ul>
-          </section>
-
-          <section class="card">
-            <div class="card-header">
-              <h2><i class="fa-solid fa-rocket"></i> Quick Actions</h2>
-            </div>
-            <div class="action-buttons">
-              <button class="btn-primary">
-                <i class="fa-regular fa-pen-to-square"></i> New Post
-              </button>
-              <button class="btn-secondary">
-                <i class="fa-regular fa-folder-open"></i> Browse Files
-              </button>
-              <button class="btn-secondary">
-                <i class="fa-regular fa-calendar"></i> Schedule Meeting
-              </button>
-            </div>
-          </section>
-        </div>
-
-        <!-- Right: Top Projects / Progress -->
-        <div class="dashboard-side">
-          <section class="card">
-            <div class="card-header">
-              <h2><i class="fa-solid fa-chart-simple"></i> Top Projects</h2>
-            </div>
-            <div class="project-item">
-              <span>Redesign Landing Page</span>
-              <div class="progress-bar"><div style="width: 78%"></div></div>
-              <span class="percent">78%</span>
-            </div>
-            <div class="project-item">
-              <span>Mobile App Beta</span>
-              <div class="progress-bar"><div style="width: 45%"></div></div>
-              <span class="percent">45%</span>
-            </div>
-            <div class="project-item">
-              <span>SEO Optimization</span>
-              <div class="progress-bar"><div style="width: 92%"></div></div>
-              <span class="percent">92%</span>
-            </div>
-          </section>
-
-          <section class="card">
-            <div class="card-header">
-              <h2><i class="fa-regular fa-bell"></i> Notifications</h2>
-            </div>
-            <div class="notification-item">
-              <i class="fa-regular fa-envelope"></i>
-              <div>You have 3 unread messages</div>
-            </div>
-            <div class="notification-item">
-              <i class="fa-regular fa-clock"></i>
-              <div>System update scheduled for Friday</div>
-            </div>
-          </section>
-        </div>
-      </div>
+      </section>
     </main>
+
+    <!-- Add Upload Item Modal -->
+    <div class="modal-overlay" id="uploadModal">
+      <div class="modal">
+        <button class="close-modal" id="closeUpload" aria-label="Close">&times;</button>
+        <h2>Upload Item</h2>
+        <form id="uploadForm">
+          <label for="uploadImage">Item Image</label>
+          <input id="uploadImage" name="uploadImage" type="file" accept="image/*" />
+          <button type="button" id="cameraButton" class="btn-secondary take-photo-btn">Open Camera</button>
+
+          <div id="cameraPanel" class="camera-panel hidden">
+            <video id="cameraPreview" autoplay playsinline></video>
+            <div class="camera-controls">
+              <button type="button" id="capturePhoto" class="submit-btn">Capture</button>
+              <button type="button" id="closeCamera" class="btn-secondary">Close Camera</button>
+            </div>
+          </div>
+
+          <div id="imagePreviewWrapper" class="image-preview-wrapper">
+            <img id="imagePreview" alt="Image preview" />
+          </div>
+
+          <label for="uploadCategory">Category</label>
+          <select id="uploadCategory" name="uploadCategory" required>
+            <option value="">Choose category</option>
+            <option value="wearables">Wearables</option>
+            <option value="electronics">Electronics</option>
+            <option value="household">Household (Furniture & Home)</option>
+            <option value="recreational">Recreational</option>
+            <option value="supplies">Supplies</option>
+          </select>
+
+          <label for="uploadName">Item Name</label>
+          <input id="uploadName" name="uploadName" type="text" placeholder="Enter item name" required />
+
+          <label for="uploadDescription">Description</label>
+          <textarea id="uploadDescription" name="uploadDescription" placeholder="Describe the item" rows="4"></textarea>
+
+          <div class="modal-actions">
+            <button type="submit" class="submit-btn">Submit</button>
+            <button type="button" class="btn-secondary" id="cancelUpload">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+      <div class="modal">
+        <button class="close-modal" id="closeLogin" aria-label="Close">&times;</button>
+        <h2>Log In</h2>
+        <form id="loginForm" class="auth-form">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" name="loginEmail" type="email" placeholder="Enter your email" required />
+
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" name="loginPassword" type="password" placeholder="Enter your password" required />
+
+          <div class="modal-actions">
+            <button type="submit" class="submit-btn">Log In</button>
+            <button type="button" class="btn-secondary" id="cancelLogin">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div class="modal-overlay" id="signinModal">
+      <div class="modal">
+        <button class="close-modal" id="closeSignin" aria-label="Close">&times;</button>
+        <h2>Sign Up</h2>
+        <form id="signinForm" class="auth-form">
+          <label for="signinEmail">Email</label>
+          <input id="signinEmail" name="signinEmail" type="email" placeholder="Enter your email" required />
+
+          <label for="signinPassword">Password</label>
+          <input id="signinPassword" name="signinPassword" type="password" placeholder="Create a password" required />
+
+          <label for="signinConfirmPassword">Confirm Password</label>
+          <input id="signinConfirmPassword" name="signinConfirmPassword" type="password" placeholder="Confirm your password" required />
+
+          <div class="modal-actions auth-actions">
+            <button type="submit" class="submit-btn">Create Account</button>
+            <button type="button" class="btn-secondary" id="cancelSignin">Cancel</button>
+          </div>
+        </form>
+        <div class="auth-divider">or</div>
+        <button type="button" class="submit-btn google-btn">Continue with Google</button>
+      </div>
+    </div>
+
+    <!-- Suggestion Modal -->
+    <div class="modal-overlay" id="suggestionModal">
+      <div class="modal">
+        <button class="close-modal" id="closeSuggestion" aria-label="Close">&times;</button>
+        <h2>AI Suggestion</h2>
+        <div class="suggestion-content">
+          <p class="suggestion-intro">Our AI has reviewed your item and suggests the best next step.</p>
+          <div class="suggestion-grid">
+            <div class="suggestion-meta">
+              <div class="suggestion-item"><span>Name</span><strong id="suggestionName"></strong></div>
+              <div class="suggestion-item"><span>Category</span><strong id="suggestionCategory"></strong></div>
+              <div class="suggestion-item"><span>Condition</span><strong id="suggestionSeverity">Good</strong></div>
+              <div class="suggestion-item"><span>Recommended Action</span><strong id="suggestionAction">Recycle</strong></div>
+            </div>
+            <div class="suggestion-message">
+              <p id="suggestionText">This is a placeholder suggestion. We will implement the AI later.</p>
+            </div>
+          </div>
+          <div class="suggestion-action-selection">
+            <p class="suggestion-note">What do you want to do with this item?</p>
+            <div class="suggestion-action-buttons">
+              <button type="button" class="action-choice-btn" data-action="reuse">Reuse</button>
+              <button type="button" class="action-choice-btn" data-action="recycle">Recycle</button>
+              <button type="button" class="action-choice-btn" data-action="repair">Repair</button>
+              <button type="button" class="action-choice-btn" data-action="donate">Donate</button>
+            </div>
+          </div>
+          <p class="suggestion-note">This recommendation is currently hard-coded for UI preview.</p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="submit-btn" id="closeSuggestionButton">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item Detail Modal -->
+    <div class="modal-overlay" id="detailModal">
+      <div class="modal">
+        <button class="close-modal" id="closeDetail" aria-label="Close">&times;</button>
+        <h2>Item Details</h2>
+        <div class="detail-grid">
+          <div class="detail-image-wrapper">
+            <img id="detailImage" alt="Uploaded item preview" />
+          </div>
+          <div class="detail-info">
+            <div class="detail-row"><strong>Name:</strong> <span id="detailName"></span></div>
+            <div class="detail-row"><strong>Category:</strong> <span id="detailCategory"></span></div>
+            <div class="detail-row"><strong>Condition:</strong> <span id="detailSeverity"></span></div>
+            <div class="detail-row"><strong>Recommended Action:</strong> <span id="detailAction"></span></div>
+            <div class="detail-row"><strong>Suggestion:</strong> <span id="detailSuggestion"></span></div>
+            <div class="detail-row"><strong>Description:</strong> <span id="detailDescription"></span></div>
+            <div class="detail-row"><strong>Saved On:</strong> <span id="detailUploaded"></span></div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="closeDetailButton">Close</button>
+        </div>
+      </div>
+    </div>
 
     <!-- ─── Footer ─────────────────────────────────────── -->
     <footer>
       <p>&copy; 2026 MyWebsite. All rights reserved.</p>
     </footer>
 
-    <script src="../scripts/sidebar.js"></script>
+    <script src="../scripts/user-home.js"></script>
   </body>
 </html>

@@ -17,16 +17,16 @@
 
     <div class="profile-container">
 
-        <!-- ── Sidebar (Compact: Avatar + Name + Username + Edit) ── -->
+        <!-- ── Sidebar (Compact: Avatar + Email + Edit + Sign Out) ── -->
         <aside class="sidebar-card">
             <div class="avatar-wrapper">
                 <div class="avatar-large" id="sidebarAvatar">??</div>
                 <div class="status-dot" title="Online"></div>
             </div>
-            <h2 id="sidebarName">Your Name</h2>
-            <p class="username" id="sidebarUsername">@username</p>
+            <h2 id="sidebarEmailDisplay">your.email@example.com</h2>
             <hr class="sidebar-divider">
             <button class="edit-profile-btn" id="openEditModal">✎ Edit Profile</button>
+            <button class="sign-out-btn" id="signOutBtn">Logout</button>
         </aside>
 
         <!-- ── Main Content (Redesigned: About + Contact Info) ── -->
@@ -40,16 +40,35 @@
 
             <!-- Contact & Details Section (moved from sidebar) -->
             <section class="content-card" id="details-section">
-                <h3></h3>Contact & details</h3>
+                <h3>Contact & details</h3>
                 <div class="details-list">
-                    <div class="detail-item">
-                        <span id="detailEmail">hello@creativestudio.com</span>
-                    </div>
                     <div class="detail-item">
                         <span id="detailJoined">Joined March 2026</span>
                     </div>
                     <div class="detail-item">
                         <span>San Francisco, CA</span>
+                    </div>
+                </div>
+            </section>
+            <!-- Sustainability Stats Section -->
+            <section class="content-card" id="stats-section">
+                <h3>Sustainability Impact</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Recycle</span>
+                        <span class="stat-value" id="statRecycle">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Reuse</span>
+                        <span class="stat-value" id="statReuse">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Donate</span>
+                        <span class="stat-value" id="statDonate">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Repair</span>
+                        <span class="stat-value" id="statRepair">0</span>
                     </div>
                 </div>
             </section>
@@ -62,11 +81,11 @@
             <button class="close-modal" type="button" id="closeEditModal">×</button>
             <h2>Edit Profile</h2>
             <form id="editProfileForm">
-                <label for="editName"> Username</label>
-                <input id="editName" type="text" value="" placeholder="Your display name" required>
+                <label for="editAvatar">Profile Picture</label>
+                <input id="editAvatar" type="file" accept="image/*">
 
-                <label for="editUsername">Email</label>
-                <input id="editUsername" type="text" value="" placeholder="your_username" required>
+                <label for="editEmail">Email Address</label>
+                <input id="editEmail" type="email" value="" placeholder="your_email@example.com" required>
 
                 <label for="editBio">Bio / About</label>
                 <textarea id="editBio" placeholder="Tell the world about yourself..."></textarea>
