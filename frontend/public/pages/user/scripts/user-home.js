@@ -17,8 +17,6 @@ const closeUpload = document.getElementById('closeUpload');
 const closeLogin = document.getElementById('closeLogin');
 const closeSignin = document.getElementById('closeSignin');
 const cancelUpload = document.getElementById('cancelUpload');
-const cancelLogin = document.getElementById('cancelLogin');
-const cancelSignin = document.getElementById('cancelSignin');
 const uploadForm = document.getElementById('uploadForm');
 const loginForm = document.getElementById('loginForm');
 const signinForm = document.getElementById('signinForm');
@@ -79,6 +77,29 @@ const actionLabels = {
 
 let loggedInUser = JSON.parse(localStorage.getItem('scannableUser') || 'null');
 
+const syncWithFirebase = async () => {
+  const user = auth.currentUser;
+  if (user) {
+    try {
+      const idToken = await user.getIdToken();
+      const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
+      const response = await fetch('/api/items/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken, items: localItems })
+      });
+      const data = await response.json();
+      if (data.success) {
+        uploadedItems = data.items;
+        localStorage.setItem('scannableItems', JSON.stringify(uploadedItems));
+        renderDashboard();
+      }
+    } catch (error) {
+      console.error("Error syncing with Firebase:", error);
+    }
+  }
+};
+
 // --- Auth State Listener ---
 // This runs automatically whenever the page loads or the user logs in/out
 onAuthStateChanged(auth, async (user) => {
@@ -98,11 +119,13 @@ onAuthStateChanged(auth, async (user) => {
       if (data.success) {
         // 2. Update the UI with real data
         setLoggedInUser(data.user);
+        await syncWithFirebase();
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
       // Fallback: just use the email from Firebase
       setLoggedInUser({ email: user.email });
+      await syncWithFirebase();
     }
   } else {
     console.log("No user logged in.");
@@ -526,21 +549,13 @@ const triggerSigninFromJoin = document.getElementById('triggerSigninFromJoin');
 
 if (activeRepairButton) {
   activeRepairButton.addEventListener('click', () => {
-    if (loggedInUser) {
-      window.location.href = 'activeRepair.html';
-    } else {
-      openAuthModal(joinUsModal);
-    }
+    window.location.href = 'activeRepair.html';
   });
 }
 
 if (donationStashButton) {
   donationStashButton.addEventListener('click', () => {
-    if (loggedInUser) {
-      window.location.href = 'donationStash.html';
-    } else {
-      openAuthModal(joinUsModal);
-    }
+    window.location.href = 'donationStash.html';
   });
 }
 
@@ -656,13 +671,7 @@ if (cameraButton) {
   cameraButton.addEventListener('click', openCameraCapture);
 }
 
-if (cancelLogin) {
-  cancelLogin.addEventListener('click', () => closeAuthModal(loginModal));
-}
 
-if (cancelSignin) {
-  cancelSignin.addEventListener('click', () => closeAuthModal(signInModal));
-}
 
 if (closeSuggestion) {
   closeSuggestion.addEventListener('click', closeSuggestionModal);
@@ -755,8 +764,25 @@ if (loginForm) {
         loginSuccess.textContent = "Success! Logging you in...";
         loginSuccess.style.display = "block";
         
-        // Save user state and reload
+        // Save user state
         setLoggedInUser(data.user);
+        
+        // Sync before reload to ensure guest items are synced
+        try {
+          const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
+          const syncResponse = await fetch('/api/items/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken, items: localItems })
+          });
+          const syncData = await syncResponse.json();
+          if (syncData.success) {
+            localStorage.setItem('scannableItems', JSON.stringify(syncData.items));
+          }
+        } catch (syncError) {
+          console.error("Error syncing items on login:", syncError);
+        }
+
         setTimeout(() => {
           closeAuthModal(loginModal);
           location.reload();
@@ -773,9 +799,9 @@ if (loginForm) {
   });
 }
 
-const googleBtn = document.querySelector('.google-btn');
-if (googleBtn) {
-  googleBtn.addEventListener('click', async () => {
+const googleBtns = document.querySelectorAll('.google-btn');
+googleBtns.forEach(btn => {
+  btn.addEventListener('click', async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
@@ -790,6 +816,23 @@ if (googleBtn) {
       const data = await response.json();
       if (data.success) {
         setLoggedInUser(data.user);
+        
+        // Sync before reload to ensure guest items are synced
+        try {
+          const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
+          const syncResponse = await fetch('/api/items/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken, items: localItems })
+          });
+          const syncData = await syncResponse.json();
+          if (syncData.success) {
+            localStorage.setItem('scannableItems', JSON.stringify(syncData.items));
+          }
+        } catch (syncError) {
+          console.error("Error syncing items on Google login:", syncError);
+        }
+
         location.reload();
       }
     } catch (error) {
@@ -797,7 +840,7 @@ if (googleBtn) {
       alert(getFriendlyErrorMessage(error));
     }
   });
-}
+});
 
 if (signinForm) {
     const signinError = document.getElementById('signinError');
@@ -841,6 +884,23 @@ if (signinForm) {
 
                 e.target.querySelector('button[type="submit"]').style.display = 'none';
                 
+                // Sync before reload to ensure guest items are synced
+                try {
+                  const idToken = await user.getIdToken();
+                  const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
+                  const syncResponse = await fetch('/api/items/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken, items: localItems })
+                  });
+                  const syncData = await syncResponse.json();
+                  if (syncData.success) {
+                    localStorage.setItem('scannableItems', JSON.stringify(syncData.items));
+                  }
+                } catch (syncError) {
+                  console.error("Error syncing items on signup:", syncError);
+                }
+
                 setTimeout(() => {
                     location.reload();
                 }, 1500);
@@ -923,6 +983,7 @@ if (uploadForm) {
     resetUploadForm();
     renderDashboard();
     openSuggestionModal(item);
+    syncWithFirebase();
   });
 }
 
@@ -931,6 +992,7 @@ if (suggestionActionButtons) {
     button.addEventListener('click', () => {
       applyUserSelectedAction(button.dataset.action);
       updateUploadedItems();
+      syncWithFirebase();
     });
   });
 }
@@ -982,5 +1044,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('openUpload') === 'true') {
     openUploadModal();
+  }
+  if (urlParams.get('openLogin') === 'true') {
+    openAuthModal(loginModal);
+  } else if (urlParams.get('openSignup') === 'true') {
+    openAuthModal(signInModal);
   }
 });

@@ -182,9 +182,10 @@
 
           <div class="modal-actions">
             <button type="submit" class="submit-btn">Log In</button>
-            <button type="button" class="btn-secondary" id="cancelLogin">Cancel</button>
           </div>
         </form>
+        <div class="auth-divider">or</div>
+        <button type="button" class="submit-btn google-btn" id="googleBtnLogin">Continue with Google</button>
         <p class="auth-switch">Don't have an account? <span id="switchToSignin" class="auth-link">Sign up now!</span></p>
       </div>
     </div>
@@ -207,13 +208,12 @@
           <p id="signinError" style="color: #ff4d4d; font-size: 0.85rem; margin-top: 5px; display: none;"></p>
           <p id="signinSuccess" style="color: #4CAF50; font-size: 0.85rem; margin-top: 5px; display: none;"></p>
 
-          <div class="modal-actions auth-actions">
+          <div class="modal-actions">
             <button type="submit" class="submit-btn">Create Account</button>
-            <button type="button" class="btn-secondary" id="cancelSignin">Cancel</button>
           </div>
         </form>
         <div class="auth-divider">or</div>
-        <button type="button" class="submit-btn google-btn">Continue with Google</button>
+        <button type="button" class="submit-btn google-btn" id="googleBtnSignup">Continue with Google</button>
         <p class="auth-switch">Already have an account? <span id="switchToLogin" class="auth-link">Log in now!</span></p>
       </div>
     </div>

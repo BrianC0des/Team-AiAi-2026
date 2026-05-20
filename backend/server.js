@@ -19,6 +19,7 @@ app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));
 app.use('/health', require('./routes/health'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/items', require('./routes/items'));
 
 // ── Global error handler (must be last in the pipeline) ──────────────────
 app.use(errorMiddleware);

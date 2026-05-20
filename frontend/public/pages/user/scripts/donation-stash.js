@@ -1,3 +1,5 @@
+import { auth, onAuthStateChanged } from "../../../config.js";
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  donation-stash.js — Logic for managing the donation box
 // ─────────────────────────────────────────────────────────────────────────────
@@ -10,12 +12,7 @@ let selectedOrg = null;
 
 // --- Auth Guard ---
 const checkAuth = () => {
-    if (!loggedInUser) {
-        alert("Please log in to access your donation stash.");
-        window.location.href = 'userHome.html';
-        return false;
-    }
-    return true;
+    return true; // Accessible to guests without gates
 };
 
 // --- DOM Elements ---
@@ -196,8 +193,33 @@ document.querySelectorAll('input[name="org"]').forEach(radio => {
     });
 });
 
+const syncWithFirebase = async () => {
+    const user = auth.currentUser;
+    if (user) {
+        try {
+            const idToken = await user.getIdToken();
+            const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
+            const response = await fetch('/api/items/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken, items: localItems })
+            });
+            const data = await response.json();
+            if (data.success) {
+                uploadedItems = data.items;
+                localStorage.setItem('scannableItems', JSON.stringify(uploadedItems));
+                renderAvailableItems();
+                renderDonationBox();
+                renderHistory();
+            }
+        } catch (error) {
+            console.error("Error syncing with Firebase:", error);
+        }
+    }
+};
+
 if (confirmDonationBtn) {
-    confirmDonationBtn.addEventListener('click', () => {
+    confirmDonationBtn.addEventListener('click', async () => {
         if (!selectedOrg) return;
 
         donationBox.forEach(boxItem => {
@@ -216,6 +238,7 @@ if (confirmDonationBtn) {
         renderAvailableItems();
         renderDonationBox();
         renderHistory();
+        await syncWithFirebase();
     });
 }
 
@@ -248,9 +271,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const upBtn = document.getElementById('UploadItem');
     if (upBtn) upBtn.addEventListener('click', () => window.location.href = 'userHome.html?openUpload=true');
 
-    if (checkAuth()) {
-        renderAvailableItems();
-        renderDonationBox();
-        renderHistory();
+    renderAvailableItems();
+    renderDonationBox();
+    renderHistory();
+
+    // Bind login/signup redirects for guests
+    const loginBtn = document.getElementById('login');
+    const signInBtn = document.getElementById('Sign-in');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            window.location.href = 'userHome.html?openLogin=true';
+        });
+    }
+    if (signInBtn) {
+        signInBtn.addEventListener('click', () => {
+            window.location.href = 'userHome.html?openSignup=true';
+        });
+    }
+});
+
+// --- Auth State Listener ---
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        console.log("User is logged in:", user.email);
+        try {
+            const idToken = await user.getIdToken();
+            
+            // Sync profile
+            const profileResponse = await fetch('/api/auth/login-sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken })
+            });
+            const profileData = await profileResponse.json();
+            if (profileData.success) {
+                loggedInUser = profileData.user;
+                localStorage.setItem('scannableUser', JSON.stringify(loggedInUser));
+                updateHeaderAvatar(loggedInUser);
+            }
+
+            // Sync items
+            const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
+            const syncResponse = await fetch('/api/items/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken, items: localItems })
+            });
+            const syncData = await syncResponse.json();
+            if (syncData.success) {
+                uploadedItems = syncData.items;
+                localStorage.setItem('scannableItems', JSON.stringify(uploadedItems));
+                renderAvailableItems();
+                renderDonationBox();
+                renderHistory();
+            }
+        } catch (error) {
+            console.error("Error during donation stash sync:", error);
+        }
+    } else {
+        console.log("No user logged in.");
+        loggedInUser = null;
+        localStorage.removeItem('scannableUser');
+        updateHeaderAvatar(null);
     }
 });

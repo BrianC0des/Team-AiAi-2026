@@ -253,7 +253,7 @@ footer {
     border: none;
     background: transparent;
     color: #333333;
-    font-size: 28px;
+    font-size: 36px;
     cursor: pointer;
 }
 
@@ -553,6 +553,11 @@ footer {
     gap: 12px;
     flex-wrap: wrap;
 }
+
+.modal-actions .submit-btn {
+    width: 100%;
+}
+
 
 .submit-btn {
     padding: 14px 22px;
