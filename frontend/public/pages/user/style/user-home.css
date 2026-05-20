@@ -194,6 +194,7 @@ body {
     background: #ffffff;
     border: none;
     box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2), var(--glow-violet-strong);
+    width: min(380px, 92%);
 }
 
 .impact-card-wrapper {
@@ -205,7 +206,7 @@ body {
 }
 
 .impact-card-header {
-    padding: 20px 24px;
+    padding: 14px 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -213,30 +214,30 @@ body {
 }
 
 .impact-badge {
-    background: var(--primary-violet-light);
-    color: var(--primary-violet);
-    padding: 8px 16px;
-    border-radius: 999px;
-    font-size: 12px;
+    background: var(--badge-green-bg);
+    color: var(--badge-green-text);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.1em;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     text-transform: uppercase;
 }
 
 .impact-brand {
     font-weight: 800;
     color: var(--primary-violet);
-    font-size: 1.1rem;
+    font-size: 1rem;
     letter-spacing: -0.02em;
 }
 
 .impact-card-image {
     position: relative;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    max-height: 180px;
     background: #f8f6fb;
     overflow: hidden;
 }
@@ -249,13 +250,13 @@ body {
 
 .impact-overlay-stat {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
+    bottom: 12px;
+    right: 12px;
     background: rgba(124, 58, 237, 0.9);
     backdrop-filter: blur(8px);
     color: white;
-    padding: 12px 20px;
-    border-radius: 18px;
+    padding: 8px 14px;
+    border-radius: 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -264,13 +265,13 @@ body {
 }
 
 .stat-value {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 800;
     line-height: 1;
 }
 
 .stat-unit {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -278,22 +279,22 @@ body {
 }
 
 .impact-card-content {
-    padding: 24px;
+    padding: 16px 18px;
     background: #ffffff;
 }
 
 .impact-card-content h3 {
-    font-size: 24px;
+    font-size: 18px;
     color: var(--text-dark);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     font-weight: 800;
 }
 
 .impact-card-content p {
     color: var(--text-medium);
-    font-size: 15px;
-    line-height: 1.6;
-    margin-bottom: 20px;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 14px;
     font-style: italic;
 }
 
