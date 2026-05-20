@@ -162,6 +162,9 @@
           <label for="loginPassword">Password</label>
           <input id="loginPassword" name="loginPassword" type="password" placeholder="Enter your password" required />
 
+          <p id="loginError" style="color: #ff4d4d; font-size: 0.85rem; margin-top: 10px; margin-bottom: 10px; display: none;"></p>
+          <p id="loginSuccess" style="color: #4CAF50; font-size: 0.85rem; margin-top: 10px; margin-bottom: 10px; display: none;"></p>
+
           <div class="modal-actions">
             <button type="submit" class="submit-btn">Log In</button>
             <button type="button" class="btn-secondary" id="cancelLogin">Cancel</button>
@@ -184,6 +187,9 @@
 
           <label for="signinConfirmPassword">Confirm Password</label>
           <input id="signinConfirmPassword" name="signinConfirmPassword" type="password" placeholder="Confirm your password" required />
+
+          <p id="signinError" style="color: #ff4d4d; font-size: 0.85rem; margin-top: 5px; display: none;"></p>
+          <p id="signinSuccess" style="color: #4CAF50; font-size: 0.85rem; margin-top: 5px; display: none;"></p>
 
           <div class="modal-actions auth-actions">
             <button type="submit" class="submit-btn">Create Account</button>
@@ -260,6 +266,6 @@
       <p>&copy; 2026 MyWebsite. All rights reserved.</p>
     </footer>
 
-    <script src="../scripts/user-home.js"></script>
+    <script type="module" src="../scripts/user-home.js"></script>
   </body>
 </html>

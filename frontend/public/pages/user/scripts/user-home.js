@@ -1,3 +1,12 @@
+import { 
+  auth, 
+  googleProvider, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signInWithPopup, 
+  onAuthStateChanged 
+} from "../../../config.js";
+
 const uploadModal = document.getElementById('uploadModal');
 const loginModal = document.getElementById('loginModal');
 const signInModal = document.getElementById('signinModal');
@@ -65,6 +74,37 @@ const actionLabels = {
 };
 
 let loggedInUser = JSON.parse(localStorage.getItem('scannableUser') || 'null');
+
+// --- Auth State Listener ---
+// This runs automatically whenever the page loads or the user logs in/out
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    console.log("User is logged in:", user.email);
+    
+    // 1. Fetch the full profile from your backend
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/auth/login-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        // 2. Update the UI with real data
+        setLoggedInUser(data.user);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      // Fallback: just use the email from Firebase
+      setLoggedInUser({ email: user.email });
+    }
+  } else {
+    console.log("No user logged in.");
+    clearLoggedInUser();
+  }
+});
 
 const updateHeaderAvatar = (user) => {
   if (!headerAvatar) return;
@@ -548,22 +588,176 @@ if (closeDetailButton) {
   closeDetailButton.addEventListener('click', closeDetailModal);
 }
 
+// Helper function to map Firebase error codes to clean, user-friendly messages
+function getFriendlyErrorMessage(error) {
+  if (!error) {
+    return "An unexpected error occurred. Please try again.";
+  }
+  
+  const code = error.code || error.message;
+  if (!code) {
+    return "An unexpected error occurred. Please try again.";
+  }
+
+  // Firebase auth error codes
+  if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) {
+    return "Invalid email or password. Please try again.";
+  }
+  if (code.includes('email-already-in-use')) {
+    return "This email is already registered. Please log in instead.";
+  }
+  if (code.includes('weak-password')) {
+    return "Your password is too weak. It must be at least 6 characters long.";
+  }
+  if (code.includes('invalid-email')) {
+    return "Please enter a valid email address.";
+  }
+  if (code.includes('user-disabled')) {
+    return "This account has been disabled. Please contact support.";
+  }
+  if (code.includes('network-request-failed')) {
+    return "A network error occurred. Please check your internet connection.";
+  }
+  if (code.includes('popup-closed-by-user')) {
+    return "Sign-in was cancelled before completion.";
+  }
+
+  // Strip out "Firebase: " prefix if present
+  let message = error.message || String(error);
+  if (message.startsWith("Firebase: ")) {
+    message = message.replace("Firebase: ", "");
+  }
+  return message;
+}
+
 if (loginForm) {
-  loginForm.addEventListener('submit', (event) => {
+  const loginError = document.getElementById('loginError');
+  const loginSuccess = document.getElementById('loginSuccess');
+
+  loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    
+    // Reset messages
+    loginError.style.display = 'none';
+    loginSuccess.style.display = 'none';
+
     const email = document.getElementById('loginEmail').value.trim();
-    setLoggedInUser({ email });
-    closeAuthModal(loginModal);
+    const password = document.getElementById('loginPassword').value;
+    
+    try {
+      // 1. Authenticate with Firebase
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const idToken = await user.getIdToken();
+      
+      // 2. Sync with your Backend to get the profile data
+      const response = await fetch('/api/auth/login-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        loginSuccess.textContent = "Success! Logging you in...";
+        loginSuccess.style.display = "block";
+        
+        // Save user state and reload
+        setLoggedInUser(data.user);
+        setTimeout(() => {
+          closeAuthModal(loginModal);
+          location.reload();
+        }, 1000);
+      } else {
+        loginError.textContent = data.error || 'Login failed';
+        loginError.style.display = "block";
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      loginError.textContent = getFriendlyErrorMessage(error);
+      loginError.style.display = "block";
+    }
+  });
+}
+
+const googleBtn = document.querySelector('.google-btn');
+if (googleBtn) {
+  googleBtn.addEventListener('click', async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+      
+      // Sync Google user with Backend
+      const response = await fetch('/api/auth/google-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setLoggedInUser(data.user);
+        location.reload();
+      }
+    } catch (error) {
+      console.error("Google Login Error:", error);
+      alert(getFriendlyErrorMessage(error));
+    }
   });
 }
 
 if (signinForm) {
-  signinForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const email = document.getElementById('signinEmail').value.trim();
-    setLoggedInUser({ email });
-    closeAuthModal(signInModal);
-  });
+    const signinError = document.getElementById('signinError');
+    const signinSuccess = document.getElementById('signinSuccess');
+
+    signinForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Hide previous messages
+        signinError.style.display = "none";
+        signinSuccess.style.display = "none";
+
+        const email = document.getElementById('signinEmail').value.trim();
+        const password = document.getElementById('signinPassword').value;
+        const confirmPassword = document.getElementById('signinConfirmPassword').value;
+
+        if(password !== confirmPassword) {
+            signinError.textContent = "Passwords do not match!";
+            signinError.style.display = "block";
+            return;
+        }
+
+        try{
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            const response = await fetch('/api/auth/signup', {
+                method : 'POST',
+                headers : { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    uid: user.uid,
+                    email: user.email
+                })
+            });
+
+            const data = await response.json();
+
+            if(data.success){
+                signinSuccess.textContent = "Welcome to Scannable! Account created.";
+                signinSuccess.style.display = "block";
+
+                e.target.querySelector('button[type="submit"]').style.display = 'none';
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+        }catch(error){
+            signinError.textContent = getFriendlyErrorMessage(error);
+            signinError.style.display = "block";
+        }
+    });
 }
 
 if (capturePhotoButton) {
