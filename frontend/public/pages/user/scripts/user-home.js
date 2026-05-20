@@ -1053,8 +1053,11 @@ function getFriendlyErrorMessage(error) {
   if (code.includes('network-request-failed')) {
     return "A network error occurred. Please check your internet connection.";
   }
-  if (code.includes('popup-closed-by-user')) {
-    return "Sign-in was cancelled before completion.";
+  if (code.includes('popup-blocked')) {
+    return "The Google login popup was blocked by your browser. Please allow popups/redirects for this site in your browser settings (or disable adblocker/shields) and try again.";
+  }
+  if (code.includes('cancelled-popup-request') || code.includes('popup-closed-by-user')) {
+    return "The Google sign-in window was closed or cancelled before completion. Please try again.";
   }
 
   // Strip out "Firebase: " prefix if present
@@ -1136,8 +1139,42 @@ if (loginForm) {
 const googleBtns = document.querySelectorAll('.google-btn');
 googleBtns.forEach(btn => {
   btn.addEventListener('click', async () => {
+    // Disable all Google buttons immediately to prevent multiple rapid clicks/cancellation
+    const originalText = btn.textContent;
+    googleBtns.forEach(b => {
+      b.disabled = true;
+      b.textContent = "Connecting to Google...";
+    });
+
+    let popupWindow = null;
+    const originalOpen = window.open;
+    let pollInterval = null;
+
+    // Intercept window.open to get the popup window handle
+    window.open = (...args) => {
+      popupWindow = originalOpen.apply(window, args);
+      return popupWindow;
+    };
+
+    // Promise that rejects immediately when the popup is closed by the user
+    const popupClosedPromise = new Promise((_, reject) => {
+      pollInterval = setInterval(() => {
+        if (popupWindow && popupWindow.closed) {
+          clearInterval(pollInterval);
+          const err = new Error("Sign-in was cancelled before completion.");
+          err.code = "auth/popup-closed-by-user";
+          reject(err);
+        }
+      }, 250); // Poll every 250ms for instant reaction
+    });
+
     try {
-      const result = await signInWithPopup(auth, googleProvider);
+      // Race Firebase sign-in against our fast popup closed checker
+      const result = await Promise.race([
+        signInWithPopup(auth, googleProvider),
+        popupClosedPromise
+      ]);
+      
       const idToken = await result.user.getIdToken();
       
       // Sync Google user with Backend
@@ -1168,10 +1205,22 @@ googleBtns.forEach(btn => {
         }
 
         location.reload();
+      } else {
+        alert(data.error || "Google login sync failed.");
       }
     } catch (error) {
       console.error("Google Login Error:", error);
       alert(getFriendlyErrorMessage(error));
+    } finally {
+      // Clean up the polling interval and restore window.open
+      if (pollInterval) clearInterval(pollInterval);
+      window.open = originalOpen;
+
+      // Safely re-enable the buttons and restore their original text
+      googleBtns.forEach(b => {
+        b.disabled = false;
+        b.textContent = originalText;
+      });
     }
   });
 });
