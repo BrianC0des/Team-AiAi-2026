@@ -20,5 +20,18 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push --force https://devchan123:$HF_TOKEN@huggingface.co/spaces/devchan123/ScanAble HEAD:main
-
+          # 1. Clean all Git history inside the runner
+          rm -rf .git
+          
+          # 2. Re-initialize a fresh Git repository
+          git init
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          
+          # 3. Create a clean checkout and commit (respecting .gitignore)
+          git checkout -b main
+          git add .
+          git commit -m "deploy: clean Hugging Face build"
+          
+          # 4. Force push the clean commit to Hugging Face Spaces
+          git push --force https://devchan123:$HF_TOKEN@huggingface.co/spaces/devchan123/ScanAble main
