@@ -290,11 +290,14 @@ if (confirmDonationBtn) {
       if (item) { item.donated = true; item.donatedTo = selectedOrg; item.donatedAt = new Date().toISOString(); }
     });
     localStorage.setItem('scannableItems', JSON.stringify(uploadedItems));
-    alert(`🎉 Success! Your items have been donated to ${selectedOrg}.`);
+    const firstDonated = donationBox[0];
     donationBox = [];
     closeModals();
     renderAll();
     await syncWithFirebase();
+    if (firstDonated && window.showImpactCard) {
+      window.showImpactCard(firstDonated, 'donate');
+    }
   });
 }
 
@@ -317,7 +320,23 @@ if (resetRecycleBoxBtn) resetRecycleBoxBtn.addEventListener('click', () => {
 
 if (findRecycleCenterBtn) {
   findRecycleCenterBtn.addEventListener('click', () => {
+    const markAsRecycled = () => {
+      const firstRecycled = recycleBox[0];
+      recycleBox.forEach(boxItem => {
+        const item = uploadedItems.find(i => i.createdAt === boxItem.createdAt);
+        if (item) { item.recycled = true; item.recycledAt = new Date().toISOString(); }
+      });
+      localStorage.setItem('scannableItems', JSON.stringify(uploadedItems));
+      recycleBox = [];
+      renderAll();
+      syncWithFirebase();
+      if (firstRecycled && window.showImpactCard) {
+        window.showImpactCard(firstRecycled, 'recycle');
+      }
+    };
+
     if (!navigator.geolocation) {
+      markAsRecycled();
       window.open('https://www.google.com/maps/search/recycling+center+near+me', '_blank');
       return;
     }
@@ -325,6 +344,7 @@ if (findRecycleCenterBtn) {
     findRecycleCenterBtn.textContent = '📍 Finding centers…';
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
+        markAsRecycled();
         try {
           const res = await fetch('/api/nearby-shops', {
             method: 'POST',
@@ -346,14 +366,19 @@ if (findRecycleCenterBtn) {
         } catch {
           window.open('https://www.google.com/maps/search/recycling+center+near+me', '_blank');
         } finally {
-          findRecycleCenterBtn.disabled = recycleBox.length === 0;
-          findRecycleCenterBtn.textContent = 'Find Recycling Center ♻️';
+          if (findRecycleCenterBtn) {
+            findRecycleCenterBtn.disabled = recycleBox.length === 0;
+            findRecycleCenterBtn.textContent = 'Find Recycling Center ♻️';
+          }
         }
       },
       () => {
+        markAsRecycled();
         window.open('https://www.google.com/maps/search/recycling+center+near+me', '_blank');
-        findRecycleCenterBtn.disabled = recycleBox.length === 0;
-        findRecycleCenterBtn.textContent = 'Find Recycling Center ♻️';
+        if (findRecycleCenterBtn) {
+          findRecycleCenterBtn.disabled = recycleBox.length === 0;
+          findRecycleCenterBtn.textContent = 'Find Recycling Center ♻️';
+        }
       },
       { timeout: 8000 }
     );
