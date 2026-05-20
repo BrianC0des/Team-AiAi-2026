@@ -1,4 +1,4 @@
-import { auth, onAuthStateChanged, db } from '../../../config.js';
+import { auth, onAuthStateChanged } from '../../../config.js';
 import { initSharedModals } from './shared-components.js';
 
 initSharedModals();
