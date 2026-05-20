@@ -1,19 +1,26 @@
 :root {
-  --primary-blue: #0066cc;
-  --primary-blue-light: #0077dd;
-  --primary-blue-dark: #004499;
+  /* Violet palette – elegant, professional, with subtle glow */
+  --primary-violet: #7c3aed;
+  --primary-violet-light: #a78bfa;
+  --primary-violet-dark: #6d28d9;
+  --primary-violet-soft: #ede9fe;
+  --primary-violet-surface: #f5f3ff;
+
   --white-bg: #ffffff;
-  --white-surface: #f5f5f5;
-  --white-elevated: #eeeeee;
-  --glow-blue: 0 0 20px rgba(0, 102, 204, 0.2);
-  --glow-blue-strong: 0 0 30px rgba(0, 102, 204, 0.3);
-  --submit-btn-background: #0066cc;
-  --modal-border-color: rgba(0, 102, 204, 0.18);
-  --box-border-color: rgba(0, 102, 204, 0.2);
-  --text-main: #333333;
-  --text-muted: #666666;
-  --border-color: rgba(0, 102, 204, 0.15);
-  --success-green: #28a745;
+  --white-surface: #faf9fc;
+  --white-elevated: #f4f0fa;
+
+  --glow-violet: 0 0 12px rgba(124, 58, 237, 0.15);
+  --glow-violet-strong: 0 0 20px rgba(124, 58, 237, 0.2);
+
+  --submit-btn-background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+  --modal-border-color: rgba(124, 58, 237, 0.18);
+  --box-border-color: rgba(124, 58, 237, 0.2);
+
+  --text-main: #1e1b2e;
+  --text-muted: #6e6980;
+  --border-color: rgba(124, 58, 237, 0.15);
+  --success-green: #10b981;
 }
 
 * {
@@ -25,7 +32,7 @@
 
 body {
   background-color: var(--white-bg);
-  background-image: radial-gradient(circle at top center, rgba(0, 102, 204, 0.06), var(--white-bg));
+  background-image: radial-gradient(circle at top center, rgba(124, 58, 237, 0.06), var(--white-bg));
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -35,23 +42,26 @@ body {
   flex-direction: column;
 }
 
-/* --- Header Styling (Exact match with userHome.html) --- */
+/* --- Header Styling --- */
 #Header {
-  color: #333333;
-  border-bottom: 1px solid rgba(0, 102, 204, 0.2);
+  color: var(--text-main);
+  border-bottom: 1px solid rgba(124, 58, 237, 0.2);
   justify-content: space-between;
   align-items: center;
   display: flex;
   padding: 30px 40px;
   position: relative;
   z-index: 100;
-  background-color: transparent; /* No blur/solid color per user-home.css */
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), var(--glow-violet);
 }
 
 #Header h1 {
-  color: var(--primary-blue);
+  color: var(--primary-violet);
   font-size: 1.8rem;
   font-weight: 800;
+  text-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
 }
 
 #NavButtons {
@@ -60,7 +70,7 @@ body {
 }
 
 #NavButtons button {
-  color: #004c8f;
+  color: #5b3f8c;
   font-weight: 600;
   font-size: 17px;
   background: none;
@@ -72,11 +82,12 @@ body {
 }
 
 #NavButtons button:hover {
-  background: rgb(167, 208, 255);
+  background: var(--primary-violet-soft);
+  box-shadow: var(--glow-violet);
 }
 
 #NavButtons button.active {
-  background: var(--primary-blue);
+  background: var(--primary-violet);
   color: white;
 }
 
@@ -94,19 +105,20 @@ body {
   border-radius: 20px;
   padding: 13px 25px;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 #UserAccount #Sign-in {
   color: white;
-  background: #0077dd;
+  background: var(--primary-violet-light);
 }
 
 #UserAccount #Sign-in:hover {
-  background: #0063b9;
+  background: var(--primary-violet-dark);
 }
 
 #UserAccount button:hover {
-  background-color: #b6b6b6;
+  background-color: #dcd2f0;
 }
 
 .hidden {
@@ -124,7 +136,7 @@ body {
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  background: #0077dd;
+  background: var(--primary-violet);
   color: white;
   display: flex;
   align-items: center;
@@ -133,7 +145,7 @@ body {
   font-size: 16px;
   border: 2px solid white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
   overflow: hidden;
 }
 
@@ -141,6 +153,12 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.header-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: var(--glow-violet);
+  background: var(--primary-violet-dark);
 }
 
 /* --- Main Layout --- */
@@ -158,9 +176,10 @@ body {
 
 .repair-header h1 {
   font-size: 3rem;
-  color: var(--primary-blue);
+  color: var(--primary-violet);
   margin-bottom: 12px;
   font-weight: 800;
+  text-shadow: 0 0 8px rgba(124, 58, 237, 0.15);
 }
 
 .repair-header p {
@@ -168,7 +187,7 @@ body {
   font-size: 1.1rem;
 }
 
-/* --- Tabs (Matching .filter-btn design) --- */
+/* --- Tabs --- */
 .repair-tabs {
   display: flex;
   justify-content: center;
@@ -177,9 +196,9 @@ body {
 }
 
 .tab-btn {
-  border: 1px solid rgba(0, 102, 204, 0.15);
+  border: 1px solid var(--border-color);
   background: #ffffff;
-  color: #004c8f;
+  color: #5b3f8c;
   padding: 12px 24px;
   border-radius: 999px;
   cursor: pointer;
@@ -190,14 +209,14 @@ body {
 
 .tab-btn:hover,
 .tab-btn.active {
-  background: var(--primary-blue);
+  background: var(--primary-violet);
   color: #ffffff;
-  border-color: var(--primary-blue-dark);
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+  border-color: var(--primary-violet-dark);
+  box-shadow: var(--glow-violet);
 }
 
 #NavButtons button.active {
-  background: var(--primary-blue) !important;
+  background: var(--primary-violet) !important;
   color: white !important;
 }
 
@@ -223,7 +242,7 @@ body {
 }
 
 .repair-card {
-  background: white;
+  background: linear-gradient(180deg, #ffffff 0%, #fdfbff 100%);
   border: 1px solid var(--border-color);
   border-radius: 20px;
   overflow: hidden;
@@ -235,8 +254,8 @@ body {
 
 .repair-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(0, 102, 204, 0.1);
-  border-color: rgba(0, 102, 204, 0.3);
+  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.15), var(--glow-violet);
+  border-color: rgba(124, 58, 237, 0.3);
 }
 
 .card-image {
@@ -262,7 +281,7 @@ body {
 
 .card-category {
   font-size: 0.8rem;
-  color: var(--primary-blue);
+  color: var(--primary-violet);
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 1px;
@@ -294,36 +313,38 @@ body {
 }
 
 .btn-primary {
-  background: var(--primary-blue);
+  background: var(--primary-violet);
   color: white;
+  box-shadow: var(--glow-violet);
 }
 
 .btn-primary:hover {
-  background: var(--primary-blue-dark);
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
+  background: var(--primary-violet-dark);
+  box-shadow: var(--glow-violet-strong);
 }
 
 .btn-secondary {
-  background: #f5f7f9;
+  background: #f5f3ff;
   color: var(--text-main);
   border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover {
-  background: #ebedf0;
+  background: #ede4ff;
 }
 
 .btn-outline {
-    background: transparent;
-    border: 1.5px solid var(--primary-blue);
-    color: var(--primary-blue);
+  background: transparent;
+  border: 1.5px solid var(--primary-violet);
+  color: var(--primary-violet);
 }
 
 .btn-outline:hover {
-    background: rgba(0, 102, 204, 0.05);
+  background: rgba(124, 58, 237, 0.05);
+  box-shadow: var(--glow-violet);
 }
 
-/* --- Modals (Exact match with user-home.css) --- */
+/* --- Modals --- */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -350,8 +371,8 @@ body {
   padding: 32px;
   border-radius: 22px;
   background: #ffffff;
-  border: 1px solid rgba(0, 102, 204, 0.18);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--modal-border-color);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1), var(--glow-violet);
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
@@ -370,13 +391,13 @@ body {
 }
 
 .close-modal:hover {
-  color: #0066cc;
+  color: var(--primary-violet);
 }
 
 .modal h2 {
   margin-top: 0;
   margin-bottom: 24px;
-  color: #0066cc;
+  color: var(--primary-violet);
   font-size: 28px;
   font-weight: 800;
 }
@@ -392,7 +413,7 @@ body {
 }
 
 .repair-info-section:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .repair-info-section h3 {
@@ -405,26 +426,28 @@ body {
 }
 
 .repair-info-section h3::before {
-    content: '';
-    display: inline-block;
-    width: 4px;
-    height: 18px;
-    background: var(--primary-blue);
-    border-radius: 2px;
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 18px;
+  background: var(--primary-violet);
+  border-radius: 2px;
+  box-shadow: var(--glow-violet);
 }
 
-.repair-info-section ul, .repair-info-section ol {
+.repair-info-section ul,
+.repair-info-section ol {
   padding-left: 20px;
   color: var(--text-muted);
   line-height: 1.6;
 }
 
 .repair-info-section li {
-    margin-bottom: 8px;
+  margin-bottom: 8px;
 }
 
 .submit-btn {
-  background: var(--primary-blue);
+  background: var(--submit-btn-background);
   color: white;
   padding: 16px 24px;
   border-radius: 14px;
@@ -435,12 +458,13 @@ body {
   width: 100%;
   margin-bottom: 12px;
   transition: all 0.2s;
+  box-shadow: var(--glow-violet);
 }
 
 .submit-btn:hover {
-  background: var(--primary-blue-dark);
+  background: linear-gradient(135deg, var(--primary-violet-dark), #7c3aed);
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 102, 204, 0.25);
+  box-shadow: var(--glow-violet-strong);
 }
 
 .floating-upload-btn {
@@ -448,7 +472,7 @@ body {
   bottom: 40px;
   left: 40px;
   z-index: 1000;
-  background: var(--primary-blue);
+  background: var(--primary-violet);
   color: white;
   border: none;
   border-radius: 999px;
@@ -458,15 +482,15 @@ body {
   gap: 12px;
   font-weight: 700;
   font-size: 1.1rem;
-  box-shadow: 0 10px 30px rgba(0, 102, 204, 0.3);
+  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3), var(--glow-violet);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .floating-upload-btn:hover {
   transform: scale(1.05) translateY(-5px);
-  background: var(--primary-blue-dark);
-  box-shadow: 0 15px 40px rgba(0, 102, 204, 0.4);
+  background: var(--primary-violet-dark);
+  box-shadow: 0 15px 40px rgba(124, 58, 237, 0.4), var(--glow-violet-strong);
 }
 
 .floating-upload-btn i {
@@ -475,73 +499,77 @@ body {
 
 /* Empty States */
 .empty-msg-container {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px 20px;
-    background: white;
-    border-radius: 20px;
-    border: 2px dashed var(--border-color);
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 20px;
+  border: 2px dashed var(--border-color);
+  box-shadow: var(--glow-violet);
 }
 
 .empty-msg {
-    color: var(--text-muted);
-    font-size: 1.2rem;
-    margin-bottom: 20px;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  margin-bottom: 20px;
 }
 
 /* Footer */
 footer {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  color: #666666;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--text-muted);
   font-weight: 300;
   font-size: 14px;
   padding: 30px;
   text-align: center;
   margin-top: 50px;
+  background: linear-gradient(to top, #f9f7fc, #ffffff);
+  box-shadow: inset 0 1px 8px rgba(124, 58, 237, 0.08);
 }
 
 /* Finish Repair Modal Specifics */
 #finishRepairModal .modal {
-    display: flex;
-    flex-direction: column;
-    width: min(400px, 90%);
-    padding: 24px;
+  display: flex;
+  flex-direction: column;
+  width: min(400px, 90%);
+  padding: 24px;
 }
 
 #finishRepairForm {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .image-preview-wrapper {
-    width: 100%;
-    margin-top: 10px;
-    border-radius: 12px;
-    overflow: hidden;
-    aspect-ratio: 4/5;
-    background: #f0f0f0;
-    border: 1px solid var(--border-color);
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 4/5;
+  background: #f0f0f0;
+  border: 1px solid var(--border-color);
 }
 
 .image-preview-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .verification-note {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    font-style: italic;
-    margin-top: 5px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 5px;
 }
 
 .modal-actions {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
+
 

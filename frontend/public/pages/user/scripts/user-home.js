@@ -67,12 +67,19 @@ let cameraStream = null;
 let capturedImageDataUrl = null;
 let uploadedItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
 let currentSuggestionItem = null;
+let isAnalyzing = false;
 
 const actionLabels = {
   recycle: 'Recyclable',
   reuse: 'Reuse',
   repair: 'Repair',
   donate: 'Donate',
+};
+
+const severityColors = {
+  'Severely Damaged': '#ff4d4d',
+  'Slightly Damaged': '#ffaa00',
+  'Repairable': '#00cc66',
 };
 
 let loggedInUser = JSON.parse(localStorage.getItem('scannableUser') || 'null');
@@ -263,62 +270,93 @@ const readFileAsDataURL = (file) => new Promise((resolve, reject) => {
   reader.readAsDataURL(file);
 });
 
-const getHardcodedSeverityFromImage = (imageData) => {
-  if (!imageData) {
-    return 'Good';
+// ─────────────────────────────────────────────────────────────────────────────
+//  analyzeItemWithAI
+//  Sends image + metadata to the backend /api/analyze route (Gemini 2.5 Flash).
+//  Returns the structured AI result or throws on failure.
+// ─────────────────────────────────────────────────────────────────────────────
+const analyzeItemWithAI = async ({ imageBase64, mimeType, category, name, description }) => {
+  const response = await fetch('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageBase64, mimeType, category, name, description }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const err = new Error(
+      typeof data.error === 'string'
+        ? data.error
+        : 'Analysis failed. Please try again.'
+    );
+    err.needsImage = data.needsImage || false;
+    err.retryable = data.retryable || response.status === 503;
+    throw err;
   }
-  const hash = imageData.length % 4;
-  switch (hash) {
-    case 0:
-      return 'Excellent';
-    case 1:
-      return 'Good';
-    case 2:
-      return 'Fair';
-    default:
-      return 'Poor';
-  }
+
+  return data;
 };
 
-const getSuggestionForItem = (item) => {
-  const condition = item.conditionSeverity || getHardcodedSeverityFromImage(item.imageData);
-  const actionKey = item.aiAction || item.action || inferAction(item.category, item.description);
-  const actionLabel = actionLabels[actionKey] || actionKey;
-  let suggestionText = '';
-
-  if (actionLabel.toLowerCase() === 'donate') {
-    suggestionText = `This item looks like a good fit for donation, especially since its condition is ${condition}. Consider passing it on to someone who can reuse it.`;
-  } else if (actionLabel.toLowerCase() === 'reuse') {
-    suggestionText = `Reuse is the best choice here. With a ${condition} condition, the item can likely be used again or repurposed.`;
-  } else if (actionLabel.toLowerCase() === 'recyclable' || actionLabel.toLowerCase() === 'recycle') {
-    suggestionText = `Recycling is recommended since the item is in ${condition} condition and can be processed into new materials.`;
-  } else {
-    suggestionText = `This item could be reused, recycled, or donated depending on its specifics.`;
-  }
-
-  return {
-    action: actionKey,
-    actionLabel,
-    text: suggestionText,
-    severity: condition,
-  };
-};
 
 const openSuggestionModal = (item) => {
-  if (!suggestionModal || !suggestionAction || !suggestionText) return;
+  if (!suggestionModal) return;
   currentSuggestionItem = item;
-  if (suggestionName) {
-    suggestionName.textContent = item.name || 'Unnamed item';
+
+  const notAnItemEl = document.getElementById('suggestionNotAnItem');
+  const notAnItemText = document.getElementById('suggestionNotAnItemText');
+  const unrecognizableEl = document.getElementById('suggestionUnrecognizable');
+  const resultEl = document.getElementById('suggestionResult');
+  const confidenceEl = document.getElementById('suggestionConfidence');
+
+  // Hide all states first
+  if (notAnItemEl) notAnItemEl.classList.add('hidden');
+  if (unrecognizableEl) unrecognizableEl.classList.add('hidden');
+  if (resultEl) resultEl.classList.add('hidden');
+
+  // ── Not a physical item (selfie, food, etc.) ──────────────────
+  if (item.notAnItem) {
+    if (notAnItemEl) notAnItemEl.classList.remove('hidden');
+    if (notAnItemText) {
+      notAnItemText.textContent = `This looks like ${item.detectedAs || 'a non-item'}. Please upload a photo of a physical item.`;
+    }
+    suggestionModal.classList.add('active');
+    return;
   }
-  if (suggestionCategory) {
-    suggestionCategory.textContent = item.category || 'Uncategorized';
+
+  // ── Unrecognizable (blurry/unclear image) ─────────────────────
+  if (item.unrecognizable) {
+    if (unrecognizableEl) unrecognizableEl.classList.remove('hidden');
+    suggestionModal.classList.add('active');
+    return;
   }
+
+  // ── Normal result ─────────────────────────────────────────────
+  if (resultEl) resultEl.classList.remove('hidden');
+
+  if (suggestionName) suggestionName.textContent = item.name || 'Unnamed item';
+  if (suggestionCategory) suggestionCategory.textContent = item.category || 'Uncategorized';
+
   if (suggestionSeverity) {
-    suggestionSeverity.textContent = item.conditionSeverity || getHardcodedSeverityFromImage(item.imageData);
+    suggestionSeverity.textContent = item.conditionSeverity || '';
+    suggestionSeverity.style.color = severityColors[item.conditionSeverity] || '#333';
   }
-  const suggestion = getSuggestionForItem(item);
-  suggestionAction.textContent = suggestion.actionLabel;
-  suggestionText.textContent = suggestion.text;
+
+  if (suggestionAction) {
+    suggestionAction.textContent = actionLabels[item.aiAction] || item.aiAction || '';
+  }
+
+  if (confidenceEl) {
+    confidenceEl.textContent = item.aiConfidence ? `${item.aiConfidence}%` : 'N/A';
+  }
+
+  if (suggestionText) suggestionText.textContent = item.aiSuggestion || '';
+
+  // ── Highlight recommended action button ──────────────────────
+  document.querySelectorAll('.action-choice-btn').forEach((btn) => {
+    btn.classList.toggle('recommended', btn.dataset.action === item.aiAction);
+  });
+
   suggestionModal.classList.add('active');
 };
 
@@ -328,12 +366,82 @@ const closeSuggestionModal = () => {
   currentSuggestionItem = null;
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  openActionModal — Modal 2, shown after user picks an action
+// ─────────────────────────────────────────────────────────────────────────────
+const actionModal = document.getElementById('actionModal');
+
+const openActionModal = (item, action) => {
+  if (!actionModal) return;
+
+  // Hide all content sections
+  ['actionRepairContent', 'actionDonateContent', 'actionRecycleContent', 'actionReuseContent'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+
+  const titleEl = document.getElementById('actionModalTitle');
+
+  if (action === 'repair') {
+    if (titleEl) titleEl.textContent = '🔧 Repair Guide';
+    const section = document.getElementById('actionRepairContent');
+    if (section) section.classList.remove('hidden');
+
+    // Reset tabs
+    const tabDiy    = document.getElementById('tabDiy');
+    const tabExpert = document.getElementById('tabExpert');
+    const panelDiy    = document.getElementById('panelDiy');
+    const panelExpert = document.getElementById('panelExpert');
+    if (tabDiy && tabExpert && panelDiy && panelExpert) {
+      tabDiy.classList.add('active');    tabExpert.classList.remove('active');
+      panelDiy.classList.remove('hidden'); panelExpert.classList.add('hidden');
+      tabDiy.onclick    = () => { tabDiy.classList.add('active');    tabExpert.classList.remove('active');    panelDiy.classList.remove('hidden');    panelExpert.classList.add('hidden'); };
+      tabExpert.onclick = () => { tabExpert.classList.add('active'); tabDiy.classList.remove('active');    panelExpert.classList.remove('hidden'); panelDiy.classList.add('hidden'); };
+    }
+
+    fetchRepairGuide(item);
+
+    const findShopsBtn = document.getElementById('findShopsBtn');
+    if (findShopsBtn) findShopsBtn.onclick = () => fetchNearbyShops(item);
+
+  } else if (action === 'donate') {
+    if (titleEl) titleEl.textContent = '🤝 Donate This Item';
+    const section = document.getElementById('actionDonateContent');
+    if (section) section.classList.remove('hidden');
+    ['donateIdle','donateLoading','donateContent','donateError'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('hidden', id !== 'donateIdle');
+    });
+    const findDonateBtn = document.getElementById('findDonateBtn');
+    if (findDonateBtn) findDonateBtn.onclick = () => fetchNearbyCenter(item, 'donate');
+
+  } else if (action === 'recycle') {
+    if (titleEl) titleEl.textContent = '♻️ Recycle This Item';
+    const section = document.getElementById('actionRecycleContent');
+    if (section) section.classList.remove('hidden');
+    ['recycleIdle','recycleLoading','recycleContent','recycleError'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('hidden', id !== 'recycleIdle');
+    });
+    const findRecycleBtn = document.getElementById('findRecycleBtn');
+    if (findRecycleBtn) findRecycleBtn.onclick = () => fetchNearbyCenter(item, 'recycle');
+
+  } else {
+    // reuse
+    if (titleEl) titleEl.textContent = '♻ Reuse This Item';
+    const section = document.getElementById('actionReuseContent');
+    if (section) section.classList.remove('hidden');
+  }
+
+  actionModal.classList.add('active');
+};
+
 const applyUserSelectedAction = (action) => {
   if (!currentSuggestionItem || !['reuse', 'recycle', 'repair', 'donate'].includes(action)) return;
   currentSuggestionItem.action = action;
   setActiveFilter(action);
   renderDashboard();
-  closeSuggestionModal();
+  // Note: modal closing is handled by the button click handler in Event Listeners
 };
 
 const openDetailModal = (item) => {
@@ -396,28 +504,7 @@ const capturePhoto = () => {
   closeCameraCapture();
 };
 
-const inferAction = (category, description) => {
-  const normalized = category.trim().toLowerCase();
-  const note = description.trim().toLowerCase();
-
-  if (note.match(/donate|gift|give away|unused|new|unopened/)) {
-    return 'donate';
-  }
-
-  if (note.match(/broken|damaged|repair|fix/)) {
-    return 'repair';
-  }
-
-  if (normalized === 'electronics') {
-    return 'recycle';
-  }
-
-  if (normalized === 'wearables' || normalized === 'household' || normalized === 'recreational' || normalized === 'supplies') {
-    return 'reuse';
-  }
-
-  return 'reuse';
-};
+// inferAction removed — replaced by Gemini AI analysis via /api/analyze
 
 const loadUploadedItems = () => uploadedItems;
 
@@ -467,10 +554,15 @@ const renderHistory = (items, filter = 'all') => {
 
   filteredItems.forEach((item, index) => {
     const row = document.createElement('tr');
+    const actionDisplay = item.action
+      ? actionLabels[item.action]
+      : item.aiAction
+        ? `AI: ${actionLabels[item.aiAction] || item.aiAction}`
+        : '—';
     row.innerHTML = `
       <td>${item.name}</td>
       <td>${item.category}</td>
-      <td>${item.action ? actionLabels[item.action] : `Suggested: ${actionLabels[item.aiAction] || actionLabels[inferAction(item.category, item.description)]}`}</td>
+      <td>${actionDisplay}</td>
       <td>${item.description || '-'}</td>
       <td>${formatDate(item.createdAt)}</td>
       <td><button type="button" class="btn-secondary detail-button" data-index="${index}">View</button></td>
@@ -512,10 +604,251 @@ const updateUploadedItems = () => {
   }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  fetchRepairGuide — calls /api/repair-guide using Gemini Search grounding
+// ─────────────────────────────────────────────────────────────────────────────
+const fetchRepairGuide = async (item) => {
+  const diyLoading = document.getElementById('diyLoading');
+  const diyContent = document.getElementById('diyContent');
+  const diyMeta = document.getElementById('diyMeta');
+  const diySteps = document.getElementById('diySteps');
+  const diyLinks = document.getElementById('diyLinks');
+
+  if (!diyContent) return;
+
+  // ── Step 1: Show analyze tips immediately (no wait) ───────────
+  const fallbackSteps = item.aiDiyTips || [];
+  if (diySteps) {
+    diySteps.innerHTML = fallbackSteps.length
+      ? fallbackSteps.map((s) => `<li>${s}</li>`).join('')
+      : '<li>No tips available yet.</li>';
+  }
+  if (diyMeta) {
+    diyMeta.innerHTML = `<span class="repair-badge">💡 AI Tips</span>`;
+  }
+  if (diyLoading) diyLoading.classList.add('hidden');
+  diyContent.classList.remove('hidden');
+
+  // ── Step 2: Enrich in background with web search ──────────────
+  // Show a subtle "searching for more…" badge
+  if (diyMeta) {
+    diyMeta.innerHTML = `
+      <span class="repair-badge"> AI Tips</span>
+      <span class="repair-badge" style="background:#eef6ff;color:#0066cc;"> Searching web…</span>
+    `;
+  }
+
+  try {
+    const res = await fetch('/api/repair-guide', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: item.name,
+        category: item.category,
+        description: item.description,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error('Enrichment failed');
+
+    // ── Upgrade content with web search results ───────────────
+    if (diyMeta) {
+      diyMeta.innerHTML = `
+        <span class="repair-badge">⏱ ${data.estimatedTime || 'Unknown'}</span>
+        <span class="repair-badge difficulty-${(data.difficulty || 'medium').toLowerCase()}">${data.difficulty || 'Medium'}</span>
+      `;
+    }
+
+    if (diySteps && (data.steps || []).length > 0) {
+      diySteps.innerHTML = data.steps.map((s) => `<li>${s}</li>`).join('');
+    }
+
+    if (diyLinks) {
+      const allLinks = [...(data.youtubeLinks || []), ...(data.guideLinks || [])];
+      diyLinks.innerHTML = allLinks.length
+        ? `<p class="repair-links-title">📚 Resources</p>` +
+          allLinks.map((link) => {
+            const isYt = link.url.includes('youtube') || link.url.includes('youtu.be');
+            return `
+              <a class="repair-link-card ${isYt ? 'yt-card' : 'guide-card'}" href="${link.url}" target="_blank" rel="noopener">
+                <span class="repair-link-icon">${isYt ? '▶' : '📄'}</span>
+                <span class="repair-link-title">${link.title}</span>
+              </a>`;
+          }).join('')
+        : '';
+    }
+  } catch (err) {
+    // Enrichment failed — keep showing the analyze tips, just remove the searching badge
+    console.warn('[repair-guide] Web enrichment failed, using analyze tips:', err.message);
+    if (diyMeta) {
+      diyMeta.innerHTML = `<span class="repair-badge">💡 AI Tips</span>`;
+    }
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  fetchNearbyShops — calls /api/nearby-shops using Google Maps Places API
+// ─────────────────────────────────────────────────────────────────────────────
+const fetchNearbyShops = (item) => {
+  const expertIdle = document.getElementById('expertIdle');
+  const expertLoading = document.getElementById('expertLoading');
+  const expertContent = document.getElementById('expertContent');
+  const expertError = document.getElementById('expertError');
+  const shopList = document.getElementById('shopList');
+  const shopSearchLink = document.getElementById('shopSearchLink');
+
+  if (!expertLoading) return;
+
+  // Show loading, hide everything else
+  if (expertIdle) expertIdle.classList.add('hidden');
+  if (expertError) expertError.classList.add('hidden');
+  if (expertContent) expertContent.classList.add('hidden');
+  expertLoading.classList.remove('hidden');
+
+  const onError = () => {
+    expertLoading.classList.add('hidden');
+    if (expertError) expertError.classList.remove('hidden');
+    if (shopSearchLink) {
+      const query = encodeURIComponent(`${item.category || ''} repair shop near me`);
+      shopSearchLink.href = `https://www.google.com/maps/search/${query}`;
+    }
+  };
+
+  if (!navigator.geolocation) {
+    onError();
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude: lat, longitude: lng } = position.coords;
+      try {
+        const res = await fetch('/api/nearby-shops', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lat, lng, category: item.category, name: item.name }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to load shops.');
+
+        expertLoading.classList.add('hidden');
+
+        if (!data.shops || data.shops.length === 0) {
+          onError();
+          return;
+        }
+
+        if (shopList) {
+          shopList.innerHTML = data.shops
+            .map((shop) => {
+              const stars = shop.rating
+                ? '★'.repeat(Math.round(shop.rating)) + '☆'.repeat(5 - Math.round(shop.rating))
+                : 'No rating';
+              const openBadge =
+                shop.open === true
+                  ? '<span class="shop-badge open">Open</span>'
+                  : shop.open === false
+                    ? '<span class="shop-badge closed">Closed</span>'
+                    : '';
+              return `
+                <a class="shop-card" href="${shop.mapsUrl}" target="_blank" rel="noopener">
+                  <div class="shop-card-header">
+                    <span class="shop-name">${shop.name}</span>
+                    ${openBadge}
+                  </div>
+                  <div class="shop-rating">${stars} <span class="shop-reviews">(${shop.reviews} reviews)</span></div>
+                  <div class="shop-address">📍 ${shop.address}</div>
+                  ${shop.phone ? `<div class="shop-phone">📞 ${shop.phone}</div>` : ''}
+                </a>`;
+            })
+            .join('');
+        }
+
+        if (expertContent) expertContent.classList.remove('hidden');
+      } catch (err) {
+        console.error('[nearby-shops] Error:', err);
+        onError();
+      }
+    },
+    () => onError(),
+    { timeout: 8000 }
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  fetchNearbyCenter — finds donation OR recycling centers via Maps API
+// ─────────────────────────────────────────────────────────────────────────────
+const fetchNearbyCenter = (item, action) => {
+  const prefix = action; // 'donate' or 'recycle'
+  const idleEl    = document.getElementById(`${prefix}Idle`);
+  const loadingEl = document.getElementById(`${prefix}Loading`);
+  const contentEl = document.getElementById(`${prefix}Content`);
+  const errorEl   = document.getElementById(`${prefix}Error`);
+  const listEl    = document.getElementById(`${prefix}List`);
+  const linkEl    = document.getElementById(`${prefix}SearchLink`);
+
+  if (!loadingEl) return;
+
+  if (idleEl)    idleEl.classList.add('hidden');
+  if (errorEl)   errorEl.classList.add('hidden');
+  if (contentEl) contentEl.classList.add('hidden');
+  loadingEl.classList.remove('hidden');
+
+  const label = action === 'donate' ? 'donation center' : 'recycling center';
+
+  const onError = () => {
+    loadingEl.classList.add('hidden');
+    if (errorEl) errorEl.classList.remove('hidden');
+    if (linkEl) linkEl.href = `https://www.google.com/maps/search/${encodeURIComponent(label + ' near me')}`;
+  };
+
+  if (!navigator.geolocation) { onError(); return; }
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude: lat, longitude: lng } = position.coords;
+      try {
+        const res = await fetch('/api/nearby-shops', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lat, lng, category: item.category, name: item.name, action }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+
+        loadingEl.classList.add('hidden');
+        if (!data.shops || data.shops.length === 0) { onError(); return; }
+
+        if (listEl) {
+          listEl.innerHTML = data.shops.map((shop) => {
+            const stars = shop.rating ? '★'.repeat(Math.round(shop.rating)) + '☆'.repeat(5 - Math.round(shop.rating)) : 'No rating';
+            const openBadge = shop.open === true ? '<span class="shop-badge open">Open</span>' : shop.open === false ? '<span class="shop-badge closed">Closed</span>' : '';
+            return `<a class="shop-card" href="${shop.mapsUrl}" target="_blank" rel="noopener">
+              <div class="shop-card-header"><span class="shop-name">${shop.name}</span>${openBadge}</div>
+              <div class="shop-rating">${stars} <span class="shop-reviews">(${shop.reviews} reviews)</span></div>
+              <div class="shop-address"> ${shop.address}</div>
+              ${shop.phone ? `<div class="shop-phone"> ${shop.phone}</div>` : ''}
+            </a>`;
+          }).join('');
+        }
+        if (contentEl) contentEl.classList.remove('hidden');
+      } catch (err) {
+        console.error(`[${prefix}-center]`, err);
+        onError();
+      }
+    },
+    () => onError(),
+    { timeout: 8000 }
+  );
+};
+
+// Event Listeners
+
 const switchToSignin = document.getElementById('switchToSignin');
 const switchToLogin = document.getElementById('switchToLogin');
 
-// Event Listeners
 if (switchToSignin) {
   switchToSignin.addEventListener('click', () => {
     closeAuthModal(loginModal);
@@ -529,6 +862,7 @@ if (switchToLogin) {
     openAuthModal(loginModal);
   });
 }
+
 
 if (uploadButton) {
   uploadButton.addEventListener('click', openUploadModal);
@@ -920,63 +1254,138 @@ if (closeCameraButton) {
   closeCameraButton.addEventListener('click', closeCameraCapture);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  Upload Form Submit — AI-powered analysis flow
+// ─────────────────────────────────────────────────────────────────────────────
+const setUploadLoading = (loading) => {
+  const submitBtn = document.getElementById('uploadSubmitBtn');
+  const label = document.getElementById('uploadSubmitLabel');
+  const spinner = document.getElementById('uploadSubmitSpinner');
+  isAnalyzing = loading;
+  if (submitBtn) submitBtn.disabled = loading;
+  if (label) label.classList.toggle('hidden', loading);
+  if (spinner) spinner.classList.toggle('hidden', !loading);
+};
+
 if (uploadForm) {
   uploadForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    
+    if (isAnalyzing) return;
+
     const categoryEl = document.getElementById('uploadCategory');
     const nameEl = document.getElementById('uploadName');
     const descriptionEl = document.getElementById('uploadDescription');
-    
+
     if (!categoryEl || !nameEl || !descriptionEl) {
-        console.error("Required form elements not found");
-        return;
+      console.error('Required form elements not found');
+      return;
     }
-    
+
     const category = categoryEl.value;
     const name = nameEl.value.trim();
     const description = descriptionEl.value.trim();
     const imageFile = uploadImage ? (uploadImage.files && uploadImage.files[0]) : null;
     const hasCapturedImage = Boolean(capturedImageDataUrl);
 
-    if (!category || !name || (!imageFile && !hasCapturedImage)) {
-      alert('Please select a category, add a name, and upload or capture an image.');
+    // ── Require image ─────────────────────────────────────────────
+    if (!imageFile && !hasCapturedImage) {
+      alert('Please Upload an Image before submitting.');
       return;
     }
 
-    let imageData = null;
+    if (!category || !name) {
+      alert('Please fill in the category and item name.');
+      return;
+    }
+
+    // ── Read image as base64 ──────────────────────────────────────
+    let imageBase64 = null;
+    let mimeType = 'image/jpeg';
+
     if (hasCapturedImage) {
-      imageData = capturedImageDataUrl;
+      // Camera capture is already a data URL — strip the prefix
+      const parts = capturedImageDataUrl.split(',');
+      imageBase64 = parts[1];
+      mimeType = parts[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
     } else if (imageFile) {
       try {
-        imageData = await readFileAsDataURL(imageFile);
+        const dataUrl = await readFileAsDataURL(imageFile);
+        const parts = dataUrl.split(',');
+        imageBase64 = parts[1];
+        mimeType = imageFile.type || 'image/jpeg';
       } catch (error) {
-        console.warn('Could not read uploaded image file', error);
+        console.warn('Could not read image file', error);
         alert('Could not process the image. Please try again.');
         return;
       }
     }
+
+    // ── Show loading state ────────────────────────────────────────
+    setUploadLoading(true);
+
+    let aiResult = null;
+    try {
+      aiResult = await analyzeItemWithAI({
+        imageBase64,
+        mimeType,
+        category,
+        name,
+        description,
+      });
+    } catch (error) {
+      setUploadLoading(false);
+      console.error('AI analysis error:', error);
+
+      if (error.retryable) {
+        // Show friendly retry message
+        const retry = confirm(
+          '⚠️ Gemini AI is currently busy.\n\nWould you like to try again? (Click OK to retry)'
+        );
+        if (retry) {
+          // Re-submit the form
+          uploadForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        }
+      } else {
+        alert(error.message || 'Something went wrong. Please try again.');
+      }
+      return;
+    }
+
+    setUploadLoading(false);
+
+    // ── Build item record ─────────────────────────────────────────
+    const imageDataUrl = hasCapturedImage
+      ? capturedImageDataUrl
+      : `data:${mimeType};base64,${imageBase64}`;
 
     const item = {
       category,
       name,
       description,
       imageName: imageFile ? imageFile.name : 'camera-photo.jpg',
-      imageData,
+      imageData: imageDataUrl,
       action: null,
       createdAt: new Date().toISOString(),
+      // AI results
+      conditionSeverity: aiResult.severity || null,
+      aiAction: aiResult.recommendedAction || null,
+      aiSuggestion: aiResult.summary || '',
+      aiDiyTips: aiResult.diyTips || [],
+      aiExpertTips: aiResult.expertTips || [],
+      aiConfidence: aiResult.confidence || null,
+      unrecognizable: aiResult.unrecognizable || false,
+      notAnItem: aiResult.notAnItem || false,
+      detectedAs: aiResult.detectedAs || '',
     };
 
-    const suggestion = getSuggestionForItem(item);
-    item.conditionSeverity = suggestion.severity;
-    item.aiSuggestion = suggestion.text;
-    item.aiAction = suggestion.action;
-
-    uploadedItems.push(item);
-    try {
-      localStorage.setItem('scannableItems', JSON.stringify(uploadedItems));
-    } catch (e) {
-      console.warn('LocalStorage quota exceeded. Item added but might not persist after refresh.', e);
+    // Only persist recognizable physical items
+    if (!item.unrecognizable && !item.notAnItem) {
+      uploadedItems.push(item);
+      try {
+        localStorage.setItem('scannableItems', JSON.stringify(uploadedItems));
+      } catch (e) {
+        console.warn('LocalStorage quota exceeded. Item added but might not persist after refresh.', e);
+      }
     }
 
     closeUploadModal();
@@ -990,12 +1399,25 @@ if (uploadForm) {
 if (suggestionActionButtons) {
   suggestionActionButtons.forEach((button) => {
     button.addEventListener('click', () => {
-      applyUserSelectedAction(button.dataset.action);
+      const action = button.dataset.action;
+      applyUserSelectedAction(action);
       updateUploadedItems();
       syncWithFirebase();
+      // Close Suggestion Modal, open Action Modal
+      if (suggestionModal) suggestionModal.classList.remove('active');
+      if (currentSuggestionItem) openActionModal(currentSuggestionItem, action);
     });
   });
 }
+
+// Close Action Modal
+const closeActionBtn = document.getElementById('closeAction');
+const closeActionButton = document.getElementById('closeActionButton');
+const closeActionModal = () => { if (actionModal) actionModal.classList.remove('active'); };
+if (closeActionBtn) closeActionBtn.addEventListener('click', closeActionModal);
+if (closeActionButton) closeActionButton.addEventListener('click', closeActionModal);
+
+
 
 if (filterButtons) {
   filterButtons.forEach((button) => {
@@ -1023,6 +1445,11 @@ document.addEventListener('keydown', (event) => {
 
   if (signInModal && signInModal.classList.contains('active')) {
     closeAuthModal(signInModal);
+    return;
+  }
+
+  if (actionModal && actionModal.classList.contains('active')) {
+    closeActionModal();
     return;
   }
 
