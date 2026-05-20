@@ -20,4 +20,5 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push --force https://devchan123:$HF_TOKEN@huggingface.co/spaces/devchan123/ScanAble master:main
+          git push --force https://devchan123:$HF_TOKEN@huggingface.co/spaces/devchan123/ScanAble HEAD:main
+
