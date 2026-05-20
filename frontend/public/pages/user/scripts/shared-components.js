@@ -145,6 +145,75 @@ export const initSharedModals = () => {
 
   bindUploadEvents();
   bindImpactEvents();
+  bindGoogleAuth();
+};
+
+const bindGoogleAuth = () => {
+  const googleBtns = document.querySelectorAll('.google-btn');
+  if (!googleBtns.length) return;
+
+  // Dynamically import Firebase auth so this file stays lightweight
+  import('../../../config.js').then(({ auth, googleProvider, signInWithPopup }) => {
+    googleBtns.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const originalText = btn.textContent;
+        googleBtns.forEach(b => {
+          b.disabled = true;
+          b.textContent = "Connecting to Google...";
+        });
+
+        try {
+          const result = await signInWithPopup(auth, googleProvider);
+          const idToken = await result.user.getIdToken();
+
+          // Sync Google user with backend
+          const response = await fetch('/api/auth/google-sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            localStorage.setItem('scannableUser', JSON.stringify(data.user));
+
+            // Sync local items
+            try {
+              const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
+              const syncRes = await fetch('/api/items/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken, items: localItems })
+              });
+              const syncData = await syncRes.json();
+              if (syncData.success) {
+                localStorage.setItem('scannableItems', JSON.stringify(syncData.items));
+              }
+            } catch (syncErr) {
+              console.error("Error syncing items on Google login:", syncErr);
+            }
+
+            // Redirect to user home page
+            window.location.href = 'userHome.html';
+          } else {
+            alert(data.error || "Google login sync failed.");
+          }
+        } catch (error) {
+          if (error.code !== 'auth/popup-closed-by-user') {
+            console.error("Google Login Error:", error);
+            alert(error.message || "Google sign-in failed. Please try again.");
+          }
+        } finally {
+          googleBtns.forEach(b => {
+            b.disabled = false;
+            b.textContent = originalText;
+          });
+        }
+      });
+    });
+  }).catch(err => {
+    console.error('[shared-components] Could not load Firebase config for Google auth:', err);
+  });
 };
 
 const bindUploadEvents = () => {
