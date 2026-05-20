@@ -162,7 +162,6 @@ const renderDonationBox = () => {
     boxContent.appendChild(div);
   });
 };
-};
 
 // --- Render: Recycle Box ---
 const renderRecycleBox = () => {
