@@ -102,9 +102,10 @@ const syncWithFirebase = async () => {
 };
 
 window.addEventListener('itemUploaded', (e) => {
-  uploadedItems.push(e.detail);
-  localStorage.setItem('scannableItems', JSON.stringify(uploadedItems));
+  // Pull latest array of items since shared-components.js already pushed the item
+  uploadedItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
   renderDashboard();
+  openSuggestionModal(e.detail);
   syncWithFirebase();
 });
 
@@ -1247,134 +1248,7 @@ const setUploadLoading = (loading) => {
   if (spinner) spinner.classList.toggle('hidden', !loading);
 };
 
-if (uploadForm) {
-  uploadForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (isAnalyzing) return;
 
-    const categoryEl = document.getElementById('uploadCategory');
-    const nameEl = document.getElementById('uploadName');
-    const descriptionEl = document.getElementById('uploadDescription');
-
-    if (!categoryEl || !nameEl || !descriptionEl) {
-      console.error('Required form elements not found');
-      return;
-    }
-
-    const category = categoryEl.value;
-    const name = nameEl.value.trim();
-    const description = descriptionEl.value.trim();
-    const imageFile = uploadImage ? (uploadImage.files && uploadImage.files[0]) : null;
-    const hasCapturedImage = Boolean(capturedImageDataUrl);
-
-    // ── Require image ─────────────────────────────────────────────
-    if (!imageFile && !hasCapturedImage) {
-      alert('Please Upload an Image before submitting.');
-      return;
-    }
-
-    if (!category || !name) {
-      alert('Please fill in the category and item name.');
-      return;
-    }
-
-    // ── Read image as base64 ──────────────────────────────────────
-    let imageBase64 = null;
-    let mimeType = 'image/jpeg';
-
-    if (hasCapturedImage) {
-      // Camera capture is already a data URL — strip the prefix
-      const parts = capturedImageDataUrl.split(',');
-      imageBase64 = parts[1];
-      mimeType = parts[0].match(/:(.*?);/)?.[1] || 'image/jpeg';
-    } else if (imageFile) {
-      try {
-        const dataUrl = await readFileAsDataURL(imageFile);
-        const parts = dataUrl.split(',');
-        imageBase64 = parts[1];
-        mimeType = imageFile.type || 'image/jpeg';
-      } catch (error) {
-        console.warn('Could not read image file', error);
-        alert('Could not process the image. Please try again.');
-        return;
-      }
-    }
-
-    // ── Show loading state ────────────────────────────────────────
-    setUploadLoading(true);
-
-    let aiResult = null;
-    try {
-      aiResult = await analyzeItemWithAI({
-        imageBase64,
-        mimeType,
-        category,
-        name,
-        description,
-      });
-    } catch (error) {
-      setUploadLoading(false);
-      console.error('AI analysis error:', error);
-
-      if (error.retryable) {
-        // Show friendly retry message
-        const retry = confirm(
-          '⚠️ Gemini AI is currently busy.\n\nWould you like to try again? (Click OK to retry)'
-        );
-        if (retry) {
-          // Re-submit the form
-          uploadForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-        }
-      } else {
-        alert(error.message || 'Something went wrong. Please try again.');
-      }
-      return;
-    }
-
-    setUploadLoading(false);
-
-    // ── Build item record ─────────────────────────────────────────
-    const imageDataUrl = hasCapturedImage
-      ? capturedImageDataUrl
-      : `data:${mimeType};base64,${imageBase64}`;
-
-    const item = {
-      category,
-      name,
-      description,
-      imageName: imageFile ? imageFile.name : 'camera-photo.jpg',
-      imageData: imageDataUrl,
-      action: null,
-      createdAt: new Date().toISOString(),
-      // AI results
-      conditionSeverity: aiResult.severity || null,
-      aiAction: aiResult.recommendedAction || null,
-      aiSuggestion: aiResult.summary || '',
-      aiDiyTips: aiResult.diyTips || [],
-      aiExpertTips: aiResult.expertTips || [],
-      aiConfidence: aiResult.confidence || null,
-      unrecognizable: aiResult.unrecognizable || false,
-      notAnItem: aiResult.notAnItem || false,
-      detectedAs: aiResult.detectedAs || '',
-    };
-
-    // Only persist recognizable physical items
-    if (!item.unrecognizable && !item.notAnItem) {
-      uploadedItems.push(item);
-      try {
-        localStorage.setItem('scannableItems', JSON.stringify(uploadedItems));
-      } catch (e) {
-        console.warn('LocalStorage quota exceeded. Item added but might not persist after refresh.', e);
-      }
-    }
-
-    closeUploadModal();
-    resetUploadForm();
-    renderDashboard();
-    openSuggestionModal(item);
-    syncWithFirebase();
-  });
-}
 
 if (suggestionActionButtons) {
   suggestionActionButtons.forEach((button) => {

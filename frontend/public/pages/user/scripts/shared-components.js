@@ -619,14 +619,38 @@ const bindUploadEvents = () => {
         const data = await res.json();
 
         if (data.success) {
-          const newItem = {
+          const item = {
+            category: payload.category,
+            name: payload.name,
+            description: payload.description,
+            imageName: file.name || 'camera-photo.jpg',
+            imageData: base64data,
+            action: null,
             createdAt: new Date().toISOString(),
-            ...payload,
-            ...data
+            conditionSeverity: data.severity || null,
+            aiAction: data.recommendedAction || null,
+            aiSuggestion: data.summary || '',
+            aiDiyTips: data.diyTips || [],
+            aiExpertTips: data.expertTips || [],
+            aiConfidence: data.confidence || null,
+            unrecognizable: data.unrecognizable || false,
+            notAnItem: data.notAnItem || false,
+            detectedAs: data.detectedAs || '',
           };
+
+          // Save to local storage for persistence across pages
+          if (!item.unrecognizable && !item.notAnItem) {
+            try {
+              const storedItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
+              storedItems.push(item);
+              localStorage.setItem('scannableItems', JSON.stringify(storedItems));
+            } catch (err) {
+              console.warn('LocalStorage error:', err);
+            }
+          }
           
           // Dispatch a global event so the active page can update its state
-          window.dispatchEvent(new CustomEvent('itemUploaded', { detail: newItem }));
+          window.dispatchEvent(new CustomEvent('itemUploaded', { detail: item }));
           
           closeUploadModal();
           uploadForm.reset();
