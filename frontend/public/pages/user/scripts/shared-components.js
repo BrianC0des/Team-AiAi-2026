@@ -134,8 +134,172 @@ const actionLabels = {
 
 let cameraStream = null;
 
+const impactStylesCSS = `
+.modal.impact-modal {
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2), var(--glow-violet-strong) !important;
+    width: min(380px, 92%) !important;
+    max-height: 95vh !important;
+}
+.impact-card-wrapper {
+    background: #ffffff !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    border-bottom: 1px solid var(--divider, #e5e7eb) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+.impact-card-header {
+    padding: 14px 18px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+}
+.impact-badge {
+    background: var(--badge-green-bg, #dcfce7) !important;
+    color: var(--badge-green-text, #15803d) !important;
+    padding: 6px 12px !important;
+    border-radius: 100px !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.1em !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    text-transform: uppercase !important;
+}
+.impact-brand {
+    font-weight: 800 !important;
+    color: var(--primary-violet, #7c3aed) !important;
+    font-size: 1rem !important;
+    letter-spacing: -0.02em !important;
+}
+.impact-card-image {
+    position: relative !important;
+    width: 100% !important;
+    max-height: 180px !important;
+    background: #f8f6fb !important;
+    overflow: hidden !important;
+}
+.impact-card-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+.impact-overlay-stat {
+    position: absolute !important;
+    bottom: 12px !important;
+    right: 12px !important;
+    background: rgba(124, 58, 237, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    color: white !important;
+    padding: 8px 14px !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+.stat-value {
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+}
+.stat-unit {
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    opacity: 0.9 !important;
+}
+.impact-card-content {
+    padding: 16px 18px !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+}
+.impact-card-content h3 {
+    font-size: 18px !important;
+    color: var(--text-dark, #1f2937) !important;
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
+    font-weight: 800 !important;
+}
+.impact-card-content p {
+    color: var(--text-medium, #4b5563) !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    margin-bottom: 14px !important;
+    font-style: italic !important;
+}
+.impact-footer-stats {
+    display: flex !important;
+    gap: 24px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid var(--divider, #e5e7eb) !important;
+}
+.impact-stat-item {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+}
+.stat-label {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: var(--text-muted, #9ca3af) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+.stat-info {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: var(--primary-violet, #7c3aed) !important;
+}
+.impact-actions {
+    padding: 24px !important;
+    background: #faf9fc !important;
+    box-sizing: border-box !important;
+}
+.impact-actions button {
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+}
+@media (max-width: 480px) {
+    .modal.impact-modal {
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+    }
+    .impact-overlay-stat {
+        bottom: 16px !important;
+        right: 16px !important;
+        padding: 10px 16px !important;
+    }
+    .stat-value {
+        font-size: 24px !important;
+    }
+}
+`;
+
 // Ensure modals exist
 export const initSharedModals = () => {
+  if (!document.getElementById('impactModalStyles')) {
+    const style = document.createElement('style');
+    style.id = 'impactModalStyles';
+    style.textContent = impactStylesCSS;
+    document.head.appendChild(style);
+  }
+
   if (!document.getElementById('uploadModal')) {
     document.body.insertAdjacentHTML('beforeend', uploadModalHTML);
   }
