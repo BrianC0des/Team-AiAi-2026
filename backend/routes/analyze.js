@@ -95,6 +95,10 @@ const parseGeminiResponse = (rawText) => {
   // Log raw response for debugging
   console.log('[analyze] Raw Gemini response:', rawText);
 
+  if (typeof rawText !== 'string') {
+    throw new Error('Gemini response is not a string');
+  }
+
   // 1. Strip markdown fences if present
   let cleaned = rawText
     .replace(/^```json\s*/i, '')
@@ -106,16 +110,24 @@ const parseGeminiResponse = (rawText) => {
   try {
     return JSON.parse(cleaned);
   } catch (_) {
-    // fall through to regex extraction
+    // fall through
   }
 
   // 3. Regex fallback — extract the first {...} block found anywhere in the text
   const match = cleaned.match(/\{[\s\S]*\}/);
   if (match) {
-    return JSON.parse(match[0]);
+    try {
+      let jsonSegment = match[0]
+        .replace(/[\u0000-\u001F]+/g, ' ') // Clean control characters
+        .replace(/,\s*}/g, '}')           // Clean trailing commas in objects
+        .replace(/,\s*]/g, ']');          // Clean trailing commas in arrays
+      return JSON.parse(jsonSegment);
+    } catch (_) {
+      // fall through
+    }
   }
 
-  throw new Error('No valid JSON found in Gemini response');
+  throw new Error('No valid JSON structure found in Gemini response');
 };
 
 const validateResult = (parsed) => {
@@ -272,9 +284,10 @@ router.post(
     let parsed;
     try {
       parsed = parseGeminiResponse(rawText);
-    } catch {
-      console.error('[analyze] Failed to parse Gemini JSON:', rawText);
-      const err = new Error('AI returned an unreadable response. Please try again.');
+    } catch (parseError) {
+      console.error('[analyze] Failed to parse Gemini JSON:', rawText, parseError);
+      const snippet = rawText.length > 80 ? rawText.substring(0, 80) + '...' : rawText;
+      const err = new Error(`AI returned an unreadable response: "${snippet}". Please try again.`);
       err.statusCode = 502;
       throw err;
     }
