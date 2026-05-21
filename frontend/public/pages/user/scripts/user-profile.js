@@ -1,4 +1,8 @@
 import { auth, onAuthStateChanged } from "../../../config.js";
+import { initSharedModals } from "./shared-components.js";
+
+// Initialize global modals and sidebar
+initSharedModals();
 
 // ======================== PROFILE DATA & UI ========================
 const sidebarEmailDisplay = document.getElementById('sidebarEmailDisplay');
