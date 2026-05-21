@@ -707,4 +707,72 @@ footer {
   }
 }
 
+/* ── Ultra Small Phones Responsiveness (under 480px) ── */
+@media (max-width: 480px) {
+    /* Tighten up general padding and typography */
+    body {
+        font-size: 14px;
+    }
 
+    #Header h1 {
+        font-size: 24px;
+    }
+
+    #Header {
+        padding: 16px;
+    }
+
+    .main-content {
+        padding: 16px;
+    }
+
+    /* Modal adjustments for narrow screens */
+    .modal {
+        padding: 20px 16px;
+        border-radius: 18px;
+        max-height: 95vh;
+    }
+
+    .modal h2 {
+        font-size: 22px;
+        margin-bottom: 16px;
+    }
+
+    .close-modal {
+        top: 12px;
+        right: 12px;
+        font-size: 32px;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .modal-actions button,
+    .btn-secondary,
+    .submit-btn {
+        width: 100%;
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    /* Shrink the camera preview to fit viewport vertically */
+    #cameraPreview {
+        max-height: 240px;
+    }
+
+    .repair-card {
+        padding: 16px;
+    }
+
+    .repair-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .repair-actions {
+        flex-direction: column;
+    }
+}
