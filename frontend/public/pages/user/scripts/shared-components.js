@@ -1,5 +1,21 @@
 // shared-components.js
-// Dynamically injects and manages global UI modals (Upload, Impact/Share)
+// Dynamically injects and manages global UI modals (Upload, Impact/Share, Mobile Sidebar)
+
+const mobileSidebarHTML = `
+<div id="SidebarOverlay" class="sidebar-overlay"></div>
+<div id="MobileSidebar" class="mobile-sidebar">
+    <button id="CloseSidebarBtn" class="close-sidebar-btn" aria-label="Close Sidebar">&times;</button>
+    <div class="sidebar-content">
+        <h2>ScanAble</h2>
+        <nav class="sidebar-nav">
+            <a href="userHome.html" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="activeRepair.html" class="sidebar-link"><i class="fas fa-tools"></i> Active Repair</a>
+            <a href="donationStash.html" class="sidebar-link"><i class="fas fa-box-open"></i> Donation Stash</a>
+            <a href="userProfile.html" class="sidebar-link" id="SidebarProfileLink"><i class="fas fa-user"></i> Profile</a>
+        </nav>
+    </div>
+</div>
+`;
 
 const uploadModalHTML = `
 <div class="modal-overlay" id="uploadModal">
@@ -345,6 +361,63 @@ const compressImage = (file, maxWidth = 1024, maxHeight = 1024) => {
   });
 };
 
+const bindSidebarEvents = () => {
+  const mobileMenuBtn = document.getElementById('MobileMenuBtn');
+  const mobileSidebar = document.getElementById('MobileSidebar');
+  const sidebarOverlay = document.getElementById('SidebarOverlay');
+  const closeSidebarBtn = document.getElementById('CloseSidebarBtn');
+
+  if (!mobileSidebar || !sidebarOverlay) return;
+
+  const openSidebar = () => {
+    mobileSidebar.classList.add('active');
+    sidebarOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling
+  };
+
+  const closeSidebar = () => {
+    mobileSidebar.classList.remove('active');
+    sidebarOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  };
+
+  // Multiple buttons might exist across different files, use event delegation or match by ID dynamically
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('#MobileMenuBtn');
+    if (btn) {
+      openSidebar();
+    }
+  });
+
+  if (closeSidebarBtn) {
+    closeSidebarBtn.addEventListener('click', closeSidebar);
+  }
+
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', closeSidebar);
+  }
+
+  // Highlight active link based on current URL
+  const currentPath = window.location.pathname;
+  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+  sidebarLinks.forEach(link => {
+    if (currentPath.includes(link.getAttribute('href'))) {
+      link.classList.add('active');
+    }
+  });
+
+  // Check login state to hide/show profile link in sidebar
+  const loggedInUser = JSON.parse(localStorage.getItem('scannableUser') || 'null');
+  const sidebarProfileLink = document.getElementById('SidebarProfileLink');
+  if (sidebarProfileLink) {
+    if (loggedInUser) {
+      sidebarProfileLink.style.display = 'flex';
+    } else {
+      sidebarProfileLink.style.display = 'none';
+    }
+  }
+};
+
 // Ensure modals exist
 export const initSharedModals = () => {
   if (!document.getElementById('impactModalStyles')) {
@@ -360,10 +433,14 @@ export const initSharedModals = () => {
   if (!document.getElementById('impactModal')) {
     document.body.insertAdjacentHTML('beforeend', impactModalHTML);
   }
+  if (!document.getElementById('MobileSidebar')) {
+    document.body.insertAdjacentHTML('beforeend', mobileSidebarHTML);
+  }
 
   bindUploadEvents();
   bindImpactEvents();
   bindGoogleAuth();
+  bindSidebarEvents();
 };
 
 const bindGoogleAuth = () => {
