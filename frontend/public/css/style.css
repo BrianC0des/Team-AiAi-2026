@@ -1,5 +1,5 @@
 :root {
-    /* Violet light palette – elegant with a whisper of glow */
+    /* Violet light palette � elegant with a whisper of glow */
     --primary-violet: #7c3aed;
     --primary-violet-hover: #6d28d9;
     --primary-violet-light: #ede9fe;
@@ -11,7 +11,7 @@
     --surface-soft: #f6f3ff;
     --border-light: #e0dce8;
 
-    /* Glow touches – very subtle, not aggressive */
+    /* Glow touches � very subtle, not aggressive */
     --glow-soft: 0 0 12px rgba(124, 58, 237, 0.15);
     --glow-medium: 0 0 20px rgba(124, 58, 237, 0.2);
     --glow-text: 0 0 8px rgba(124, 58, 237, 0.25);
@@ -30,14 +30,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Roboto", sans-serif;
+    font-family: \"Roboto\", sans-serif;
 }
 
 html {
     scroll-behavior: smooth;
 }
 
-/* ── Full-page gradient background ── */
+/* -- Full-page gradient background -- */
 body {
     background: linear-gradient(135deg, #faf8ff 0%, #ffffff 30%, #f5f0ff 100%);
     color: var(--text-dark);
@@ -45,7 +45,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* ── Navigation ── */
+/* -- Navigation -- */
 nav {
     position: sticky;
     top: 0;
@@ -118,7 +118,7 @@ nav {
     transform: translateY(-1px);
 }
 
-/* ── Hero Section ── */
+/* -- Hero Section -- */
 #Hero {
     padding: 60px 20px 50px;
     display: flex;
@@ -173,7 +173,7 @@ nav {
     transform: translateY(-2px);
 }
 
-/* ── About & Services Sections ── */
+/* -- About & Services Sections -- */
 #about,
 #services,
 #lastSection {
@@ -226,7 +226,7 @@ nav {
     margin: 16px 0 32px;
 }
 
-/* ── Card Grid ── */
+/* -- Card Grid -- */
 #container {
     display: flex;
     flex-wrap: wrap;
@@ -256,7 +256,7 @@ nav {
     background: linear-gradient(180deg, #ffffff 0%, #f5f0ff 100%);
 }
 
-/* ── Back to top button ── */
+/* -- Back to top button -- */
 #topButton {
     display: inline-block;
     font-weight: 500;
@@ -277,7 +277,7 @@ nav {
     box-shadow: var(--glow-soft), var(--shadow-md);
 }
 
-/* ── Footer ── */
+/* -- Footer -- */
 footer {
     border-top: 1px solid var(--border-light);
     color: var(--text-muted);
@@ -288,7 +288,7 @@ footer {
     box-shadow: inset 0 1px 8px rgba(124, 58, 237, 0.08);
 }
 
-/* ── Responsive adjustments ── */
+/* -- Responsive adjustments -- */
 @media (max-width: 768px) {
     nav {
         flex-direction: column;
