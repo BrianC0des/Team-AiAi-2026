@@ -417,13 +417,22 @@ const bindGoogleAuth = () => {
           if (data.success) {
             localStorage.setItem('scannableUser', JSON.stringify(data.user));
 
-            // Sync local items
+            // Sync local items with optional migration prompt
             try {
               const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
+              let itemsToSync = localItems;
+              
+              if (localItems.length > 0) {
+                const shouldMigrate = confirm("We detected some items you uploaded as a guest. Do you want to sync and migrate them to your account? Click OK to merge them, or Cancel to keep only your existing account items.");
+                if (!shouldMigrate) {
+                  itemsToSync = [];
+                }
+              }
+              
               const syncRes = await fetch('/api/items/sync', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken, items: localItems })
+                body: JSON.stringify({ idToken, items: itemsToSync })
               });
               const syncData = await syncRes.json();
               if (syncData.success) {

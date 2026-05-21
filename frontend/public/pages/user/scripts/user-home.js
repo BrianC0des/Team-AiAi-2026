@@ -1134,13 +1134,22 @@ if (loginForm) {
         // Save user state
         setLoggedInUser(data.user);
         
-        // Sync before reload to ensure guest items are synced
+        // Sync local items with optional migration prompt
         try {
           const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
+          let itemsToSync = localItems;
+          
+          if (localItems.length > 0) {
+            const shouldMigrate = confirm("We detected some items you uploaded as a guest. Do you want to sync and migrate them to your account? Click OK to merge them, or Cancel to keep only your existing account items.");
+            if (!shouldMigrate) {
+              itemsToSync = [];
+            }
+          }
+          
           const syncResponse = await fetch('/api/items/sync', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken, items: localItems })
+            body: JSON.stringify({ idToken, items: itemsToSync })
           });
           const syncData = await syncResponse.json();
           if (syncData.success) {
@@ -1210,14 +1219,23 @@ if (signinForm) {
 
                 e.target.querySelector('button[type="submit"]').style.display = 'none';
                 
-                // Sync before reload to ensure guest items are synced
+                // Sync local items with optional migration prompt
                 try {
                   const idToken = await user.getIdToken();
                   const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
+                  let itemsToSync = localItems;
+                  
+                  if (localItems.length > 0) {
+                    const shouldMigrate = confirm("We detected some items you uploaded as a guest. Do you want to sync and migrate them to your account? Click OK to merge them, or Cancel to keep only your existing account items.");
+                    if (!shouldMigrate) {
+                      itemsToSync = [];
+                    }
+                  }
+                  
                   const syncResponse = await fetch('/api/items/sync', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ idToken, items: localItems })
+                    body: JSON.stringify({ idToken, items: itemsToSync })
                   });
                   const syncData = await syncResponse.json();
                   if (syncData.success) {
