@@ -1139,7 +1139,8 @@ if (loginForm) {
           const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
           let itemsToSync = localItems;
           
-          if (localItems.length > 0) {
+          const hasGuestItems = localItems.some(item => item.isGuestItem === true);
+          if (hasGuestItems) {
             const shouldMigrate = await promptSyncMigration();
             if (!shouldMigrate) {
               itemsToSync = [];
@@ -1225,7 +1226,8 @@ if (signinForm) {
                   const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
                   let itemsToSync = localItems;
                   
-                  if (localItems.length > 0) {
+                  const hasGuestItems = localItems.some(item => item.isGuestItem === true);
+                  if (hasGuestItems) {
                     const shouldMigrate = await promptSyncMigration();
                     if (!shouldMigrate) {
                       itemsToSync = [];

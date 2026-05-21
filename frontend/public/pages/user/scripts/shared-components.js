@@ -422,7 +422,8 @@ const bindGoogleAuth = () => {
               const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
               let itemsToSync = localItems;
               
-              if (localItems.length > 0) {
+              const hasGuestItems = localItems.some(item => item.isGuestItem === true);
+              if (hasGuestItems) {
                 const shouldMigrate = await promptSyncMigration();
                 if (!shouldMigrate) {
                   itemsToSync = [];
@@ -628,6 +629,7 @@ const bindUploadEvents = () => {
         const data = await res.json();
 
         if (data.success) {
+          const isGuest = !localStorage.getItem('scannableUser');
           const item = {
             id: 'item-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9),
             category: payload.category,
@@ -637,6 +639,7 @@ const bindUploadEvents = () => {
             imageData: base64data,
             action: null,
             createdAt: new Date().toISOString(),
+            isGuestItem: isGuest,
             conditionSeverity: data.severity || null,
             aiAction: data.recommendedAction || null,
             aiSuggestion: data.summary || '',
