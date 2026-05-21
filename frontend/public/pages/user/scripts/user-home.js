@@ -1133,6 +1133,9 @@ if (loginForm) {
         
         // Save user state
         setLoggedInUser(data.user);
+
+        // Close the login modal immediately so it doesn't hang on screen
+        closeAuthModal(loginModal);
         
         // Sync local items with optional migration prompt
         try {
@@ -1160,10 +1163,7 @@ if (loginForm) {
           console.error("Error syncing items on login:", syncError);
         }
 
-        setTimeout(() => {
-          closeAuthModal(loginModal);
-          location.reload();
-        }, 1000);
+        location.reload();
       } else {
         loginError.textContent = data.error || 'Login failed';
         loginError.style.display = "block";
@@ -1219,6 +1219,9 @@ if (signinForm) {
                 signinSuccess.style.display = "block";
 
                 e.target.querySelector('button[type="submit"]').style.display = 'none';
+
+                // Close signup modal immediately so it doesn't hang on screen
+                closeAuthModal(signinModal);
                 
                 // Sync local items with optional migration prompt
                 try {
@@ -1247,9 +1250,7 @@ if (signinForm) {
                   console.error("Error syncing items on signup:", syncError);
                 }
 
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
+                location.reload();
             }
         }catch(error){
             signinError.textContent = getFriendlyErrorMessage(error);

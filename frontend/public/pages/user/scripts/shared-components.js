@@ -417,6 +417,10 @@ const bindGoogleAuth = () => {
           if (data.success) {
             localStorage.setItem('scannableUser', JSON.stringify(data.user));
 
+            // Close any active auth modals immediately so they don't linger during sync/migration
+            const activeModals = document.querySelectorAll('.modal-overlay.active');
+            activeModals.forEach(modal => modal.classList.remove('active'));
+
             // Sync local items with optional migration prompt
             try {
               const localItems = JSON.parse(localStorage.getItem('scannableItems') || '[]');
