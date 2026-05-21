@@ -616,4 +616,95 @@ footer {
   background: #ede4ff;
 }
 
+@media (max-width: 680px) {
+  #Header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  #Header h1 {
+    text-align: center;
+    margin: 0;
+  }
+
+  #NavButtons {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 8px;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  #NavButtons::-webkit-scrollbar {
+    display: none;
+  }
+
+  #NavButtons button {
+    padding: 8px 12px;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  #UserAccount {
+    justify-content: center;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  #UserAccount button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .repair-container {
+    margin: 20px auto;
+    padding: 0 16px;
+  }
+
+  .repair-header h1 {
+    font-size: 2.2rem;
+  }
+
+  .repair-header p {
+    font-size: 0.95rem;
+  }
+
+  .repair-tabs {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 8px;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    justify-content: flex-start;
+  }
+
+  .repair-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-btn {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .repair-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .floating-upload-btn {
+    bottom: 20px;
+    left: 20px;
+    padding: 14px 22px;
+    font-size: 0.9rem;
+  }
+}
+
 

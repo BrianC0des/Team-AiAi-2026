@@ -423,7 +423,7 @@ const bindGoogleAuth = () => {
               let itemsToSync = localItems;
               
               if (localItems.length > 0) {
-                const shouldMigrate = confirm("We detected some items you uploaded as a guest. Do you want to sync and migrate them to your account? Click OK to merge them, or Cancel to keep only your existing account items.");
+                const shouldMigrate = await promptSyncMigration();
                 if (!shouldMigrate) {
                   itemsToSync = [];
                 }
@@ -769,4 +769,48 @@ window.showImpactCard = (item, action) => {
   if (impactAction) impactAction.textContent = actionLabels[action] || action;
 
   impactModal.classList.add('active');
+};
+
+const syncConfirmModalHTML = `
+<div class="modal-overlay" id="syncConfirmModal">
+  <div class="modal" style="width: min(420px, 92%); padding: 24px;">
+    <h2 style="margin-top: 0; margin-bottom: 14px; color: var(--primary-violet); font-size: 1.5rem; font-weight: 800; text-align: center;">Sync Progress</h2>
+    <div class="modal-body" style="margin-bottom: 24px;">
+      <p style="margin: 0; line-height: 1.5; color: var(--text-main); font-size: 0.95rem; text-align: center;">We detected some items you uploaded as a guest. Do you want to sync and migrate them to your account?</p>
+      <p style="margin-top: 12px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; text-align: center;">Click <strong>Sync & Merge</strong> to combine them, or <strong>Keep Existing</strong> to keep only your existing account items.</p>
+    </div>
+    <div class="modal-actions" style="display: flex; flex-direction: row; gap: 12px;">
+      <button type="button" class="submit-btn" id="syncConfirmBtn" style="flex: 1; margin: 0; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; transition: all 0.2s; text-align: center; background: var(--submit-btn-background); color: white;">Sync & Merge</button>
+      <button type="button" class="btn-secondary" id="syncCancelBtn" style="flex: 1; margin: 0; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; text-align: center; background: #f5f3ff; color: var(--text-main);">Keep Existing</button>
+    </div>
+  </div>
+</div>
+`;
+
+export const promptSyncMigration = () => {
+  return new Promise((resolve) => {
+    let modal = document.getElementById('syncConfirmModal');
+    if (!modal) {
+      document.body.insertAdjacentHTML('beforeend', syncConfirmModalHTML);
+      modal = document.getElementById('syncConfirmModal');
+    }
+
+    const confirmBtn = document.getElementById('syncConfirmBtn');
+    const cancelBtn = document.getElementById('syncCancelBtn');
+
+    const cleanUpAndResolve = (result) => {
+      modal.classList.remove('active');
+      setTimeout(() => {
+        modal.remove();
+      }, 300);
+      resolve(result);
+    };
+
+    confirmBtn.onclick = () => cleanUpAndResolve(true);
+    cancelBtn.onclick = () => cleanUpAndResolve(false);
+
+    setTimeout(() => {
+      modal.classList.add('active');
+    }, 10);
+  });
 };

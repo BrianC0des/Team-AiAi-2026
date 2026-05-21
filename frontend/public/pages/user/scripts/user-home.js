@@ -1,5 +1,5 @@
 import { auth, googleProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, onAuthStateChanged } from "../../../config.js";
-import { initSharedModals } from './shared-components.js';
+import { initSharedModals, promptSyncMigration } from './shared-components.js';
 
 const uploadModal = document.getElementById('uploadModal');
 const loginModal = document.getElementById('loginModal');
@@ -1140,7 +1140,7 @@ if (loginForm) {
           let itemsToSync = localItems;
           
           if (localItems.length > 0) {
-            const shouldMigrate = confirm("We detected some items you uploaded as a guest. Do you want to sync and migrate them to your account? Click OK to merge them, or Cancel to keep only your existing account items.");
+            const shouldMigrate = await promptSyncMigration();
             if (!shouldMigrate) {
               itemsToSync = [];
             }
@@ -1226,7 +1226,7 @@ if (signinForm) {
                   let itemsToSync = localItems;
                   
                   if (localItems.length > 0) {
-                    const shouldMigrate = confirm("We detected some items you uploaded as a guest. Do you want to sync and migrate them to your account? Click OK to merge them, or Cancel to keep only your existing account items.");
+                    const shouldMigrate = await promptSyncMigration();
                     if (!shouldMigrate) {
                       itemsToSync = [];
                     }
@@ -1367,12 +1367,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Check for URL parameters
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('openUpload') === 'true') {
-    openUploadModal();
+  const shouldOpenUpload = urlParams.get('openUpload') === 'true';
+  const shouldOpenLogin = urlParams.get('openLogin') === 'true';
+  const shouldOpenSignup = urlParams.get('openSignup') === 'true';
+
+  // Clean up URL parameters immediately so they don't reload modal on refreshing
+  if (urlParams.has('openLogin') || urlParams.has('openSignup') || urlParams.has('openUpload')) {
+    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
   }
-  if (urlParams.get('openLogin') === 'true') {
-    openAuthModal(loginModal);
-  } else if (urlParams.get('openSignup') === 'true') {
-    openAuthModal(signInModal);
+
+  // Only open auth modals if not logged in
+  if (!loggedInUser) {
+    if (shouldOpenLogin) {
+      openAuthModal(loginModal);
+    } else if (shouldOpenSignup) {
+      openAuthModal(signInModal);
+    }
+  }
+
+  if (shouldOpenUpload) {
+    openUploadModal();
   }
 });
