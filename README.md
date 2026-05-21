@@ -19,6 +19,8 @@ An AI-powered sustainability web application that evaluates the salvageability o
 [![Status](https://img.shields.io/badge/Status-Hackathon%20Build-blue)]()
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)]()
 
+[Live Demo](https://devchan123-scanable.hf.space/)
+
 </div>
 
 ---
