@@ -108,7 +108,7 @@ Scan freely as a guest. Create an account later and transfer your full analysis 
 ### Backend
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white)
 ![Express.js](https://img.shields.io/badge/Express.js-000000?style=flat&logo=express&logoColor=white)
-![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=flat&logo=railway&logoColor=white)
+![Hugging Face](https://img.shields.io/badge/Hugging%20Face-FFD21E?style=flat&logo=huggingface&logoColor=black)
 
 ### Database & Storage
 ![Firebase](https://img.shields.io/badge/Firestore-FFCA28?style=flat&logo=firebase&logoColor=black)
