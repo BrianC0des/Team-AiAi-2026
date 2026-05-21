@@ -55,6 +55,23 @@ If the image is clearly a physical item but you genuinely cannot assess its cond
   "detectedAs": ""
 }`;
 
+const cleanBase64 = (base64Str) => {
+  if (typeof base64Str !== 'string') {
+    return { mimeType: 'image/jpeg', data: '' };
+  }
+  const matches = base64Str.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.*)$/);
+  if (matches) {
+    return {
+      mimeType: matches[1],
+      data: matches[2]
+    };
+  }
+  return {
+    mimeType: 'image/jpeg',
+    data: base64Str
+  };
+};
+
 const buildPromptParts = ({ imageBase64, mimeType, category, name, description }) => {
   const textContext = `
 Item Name: ${name}
@@ -151,7 +168,8 @@ const validateResult = (parsed) => {
 router.post(
   '/',
   asyncHandler(async (req, res) => {
-    const { imageBase64, mimeType, category, name, description } = req.body;
+    const { imageBase64: rawImageBase64, imageData, mimeType, category, name, description } = req.body;
+    const imageBase64 = rawImageBase64 || imageData;
 
     // ── Validation ────────────────────────────────────────────────
     if (!imageBase64 || typeof imageBase64 !== 'string' || !imageBase64.trim()) {
@@ -169,7 +187,14 @@ router.post(
     }
 
     // ── Build multimodal prompt ───────────────────────────────────
-    const parts = buildPromptParts({ imageBase64, mimeType, category, name, description });
+    const { mimeType: detectedMimeType, data: cleanImageBase64 } = cleanBase64(imageBase64);
+    const parts = buildPromptParts({
+      imageBase64: cleanImageBase64,
+      mimeType: mimeType || detectedMimeType,
+      category,
+      name,
+      description
+    });
 
     // ── Call Gemini 2.5 Flash (with retry on 503/429) ─────────────
     let response;

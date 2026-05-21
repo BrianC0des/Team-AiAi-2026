@@ -306,6 +306,45 @@ const impactStylesCSS = `
 }
 `;
 
+const compressImage = (file, maxWidth = 1024, maxHeight = 1024) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert to base64 jpeg with 0.7 quality
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        resolve(compressedBase64);
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+};
+
 // Ensure modals exist
 export const initSharedModals = () => {
   if (!document.getElementById('impactModalStyles')) {
@@ -545,44 +584,59 @@ const bindUploadEvents = () => {
       uploadSubmitBtn.disabled = true;
 
       try {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = async () => {
-          const base64data = reader.result;
-          
-          const payload = {
-            name: document.getElementById('uploadName').value,
-            category: document.getElementById('uploadCategory').value,
-            description: document.getElementById('uploadDescription').value,
-            imageData: base64data
-          };
-
-          const res = await fetch('/api/analyze', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          const data = await res.json();
-
-          if (data.success) {
-            const newItem = {
-              createdAt: new Date().toISOString(),
-              ...payload,
-              ...data.data
-            };
-            
-            // Dispatch a global event so the active page can update its state
-            window.dispatchEvent(new CustomEvent('itemUploaded', { detail: newItem }));
-            
-            closeUploadModal();
-            uploadForm.reset();
-            imagePreviewWrapper.style.display = 'none';
-          } else {
-            alert('Analysis failed: ' + data.error);
-          }
+        const base64data = await compressImage(file);
+        
+        const payload = {
+          name: document.getElementById('uploadName').value,
+          category: document.getElementById('uploadCategory').value,
+          description: document.getElementById('uploadDescription').value,
+          imageData: base64data
         };
+
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!res.ok) {
+          // If response is not 200/201, try to parse it as JSON or read it as text
+          let errMsg = 'Failed to analyze item.';
+          try {
+            const errData = await res.json();
+            errMsg = errData.error || errMsg;
+          } catch (_) {
+            const errText = await res.text();
+            if (errText.includes('<!DOCTYPE') || errText.includes('<html')) {
+              errMsg = 'Server returned HTML error response. Please check backend logs or configuration.';
+            } else {
+              errMsg = errText || errMsg;
+            }
+          }
+          throw new Error(errMsg);
+        }
+
+        const data = await res.json();
+
+        if (data.success) {
+          const newItem = {
+            createdAt: new Date().toISOString(),
+            ...payload,
+            ...data
+          };
+          
+          // Dispatch a global event so the active page can update its state
+          window.dispatchEvent(new CustomEvent('itemUploaded', { detail: newItem }));
+          
+          closeUploadModal();
+          uploadForm.reset();
+          imagePreviewWrapper.style.display = 'none';
+        } else {
+          alert('Analysis failed: ' + data.error);
+        }
       } catch (err) {
-        alert('An error occurred during upload.');
+        console.error('Upload/Analysis error:', err);
+        alert('An error occurred during analysis: ' + err.message);
       } finally {
         uploadSubmitLabel.classList.remove('hidden');
         uploadSubmitSpinner.classList.add('hidden');
