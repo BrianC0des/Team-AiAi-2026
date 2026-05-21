@@ -262,16 +262,26 @@ const impactStylesCSS = `
     color: var(--primary-violet, #7c3aed) !important;
 }
 .impact-actions {
-    padding: 24px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 16px 20px !important;
     background: #faf9fc !important;
     box-sizing: border-box !important;
 }
 .impact-actions button {
     flex: 1 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 10px 14px !important;
+    font-size: 13.5px !important;
+    border-radius: 999px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 10px !important;
+    gap: 8px !important;
 }
 @media (max-width: 480px) {
     .modal.impact-modal {
@@ -287,6 +297,11 @@ const impactStylesCSS = `
     }
     .stat-value {
         font-size: 24px !important;
+    }
+    .impact-actions button {
+        font-size: 12px !important;
+        padding: 8px 10px !important;
+        gap: 6px !important;
     }
 }
 `;
