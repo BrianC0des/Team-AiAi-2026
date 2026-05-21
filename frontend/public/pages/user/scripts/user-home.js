@@ -440,12 +440,23 @@ const openActionModal = (item, action) => {
 
 const applyUserSelectedAction = (action) => {
   if (!currentSuggestionItem || !['reuse', 'recycle', 'repair', 'donate'].includes(action)) return;
-  currentSuggestionItem.action = action;
 
+  // Find the actual item in the uploadedItems array by matching its unique createdAt timestamp
+  const originalItem = uploadedItems.find(
+    item => item.createdAt === currentSuggestionItem.createdAt
+  );
+
+  if (originalItem) {
+    originalItem.action = action;
+    if (action === 'repair') {
+      originalItem.repairStatus = 'recommendation';
+    }
+  }
+
+  // Also update the currentSuggestionItem reference for correct button redirect behavior
+  currentSuggestionItem.action = action;
   if (action === 'repair') {
-    // Repair items go into the Active Repair pipeline — hidden from dashboard until finished
     currentSuggestionItem.repairStatus = 'recommendation';
-    // Do NOT add to dashboard counts yet — only after repairStatus === 'finished'
   }
 
   setActiveFilter(action === 'repair' ? 'all' : action);

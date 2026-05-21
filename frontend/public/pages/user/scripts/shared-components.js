@@ -620,6 +620,7 @@ const bindUploadEvents = () => {
 
         if (data.success) {
           const item = {
+            id: 'item-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9),
             category: payload.category,
             name: payload.name,
             description: payload.description,
