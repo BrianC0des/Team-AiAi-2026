@@ -685,8 +685,8 @@ footer {
     }
 
     #UserAccount {
-        justify-content: center;
-        width: 100%;
-        margin-top: 4px;
+        justify-content: flex-end;
+        width: auto;
+        margin-top: 0;
     }
 }
